@@ -1,0 +1,56 @@
+[
+    {
+        "description":"Test: meta+pageup",
+        "shortcut":"meta+pageup",
+        "application":"Example",
+        "comment":"Test to run shortcut 'meta+pageup', maximize window in KDE or maybe other desktop"
+    },
+    {
+        "description":"Test: ctrl+shift+c",
+        "shortcut":"ctrl+shift+c",
+        "application":"Example",
+        "comment":"Test to run shortcut 'ctrl+shift+c', the copy command in Zsh"
+    },
+    {
+        "description":"Test: a + b + c",
+        "shortcut":"a + b + c",
+        "application":"Example",
+        "comment":"Test to run shortcut 'a + b + c', in this case '+' will be a key instead of the connector"
+    },
+    {
+        "description":"Test: esc :set nu",
+        "shortcut":"esc :set space nu",
+        "application":"Example",
+        "comment":"Test to run shortcut 'esc :set nu', set number in vim/nvim"
+    },
+    {
+        "description":"Test: esc :set nu (alternative)",
+        "shortcut":"esc [STR]+ :set nu",
+        "application":"Example",
+        "comment":"Test to run shortcut 'esc :set nu', using [STR] to type string instead"
+    },
+    {
+        "description":"Test: esc :set nu enter",
+        "shortcut":"esc :set space nu enter",
+        "application":"Example",
+        "comment":"Test to run shortcut 'esc :set nu enter', set number in vim/nvim"
+    },
+    {
+        "description":"Test: esc :set nu enter (alternative)",
+        "shortcut":"esc [STR]+ :set nu [STR] enter",
+        "application":"Example",
+        "comment":"Test to run shortcut 'esc :set nu enter', using [STR] to type string instead"
+    },
+    {
+        "description":"Welcome",
+        "shortcut":"[STR]+ liz and the blue bird",
+        "application":"Welcome",
+        "comment":"Welcom message"
+    },
+    {
+        "description":"Hello world",
+        "shortcut":"[STR]+ Hello World!",
+        "application":"Welcome",
+        "comment":"Welcom message 2"
+    }
+]

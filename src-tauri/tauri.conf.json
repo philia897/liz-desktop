@@ -1,0 +1,48 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "liz",
+  "version": "0.1.0",
+  "identifier": "com.liz.app",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "liz",
+        "width": 800,
+        "minWidth": 500,
+        "height": 600,
+        "minHeight": 200,
+        "skipTaskbar": true,
+        "decorations": false,
+        "focus": true,
+        "transparent": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "category": "Utility",
+    "copyright": "GPLv3",
+    "homepage": "https://github.com/philia897/liz-desktop",
+    "targets": ["deb", "rpm", "dmg"],
+    "publisher": "philia897",
+    "longDescription": "Liz: A cross-platform shortcut helper and auto-executor",
+    "shortDescription": "Liz: shortcut helper",
+    "icon": [
+      "icons/icon_32.png",
+      "icons/icon_128.png",
+      "icons/icon_256.png",
+      "icons/icon_512.icns",
+      "icons/icon_512.ico"
+    ]
+  }
+}

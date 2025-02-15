@@ -1,0 +1,140 @@
+[
+    {
+        "description": "Undo",
+        "shortcut": "esc u",
+        "application": "Nvim",
+        "comment": "Undo the last change"
+    },
+    {
+        "description": "Copy Line",
+        "shortcut": "esc yy",
+        "application": "Nvim",
+        "comment": "Copy the current line"
+    },
+    {
+        "description": "Copy the selection to Nvim register",
+        "shortcut": "\" ay",
+        "application": "Nvim",
+        "comment": "Copy the selected text to Nvim register 'a'"
+    },
+    {
+        "description": "Copy the selection to system clipboard",
+        "shortcut": "\" + y",
+        "application": "Nvim",
+        "comment": "Copy the selected text to the system clipboard"
+    },
+    {
+        "description": "Cut Line",
+        "shortcut": "esc dd",
+        "application": "Nvim",
+        "comment": "Cut the current line"
+    },
+    {
+        "description": "Go to the file begin",
+        "shortcut": "esc gg",
+        "application": "Nvim",
+        "comment": "Move the cursor to the beginning of the page (scroll up)"
+    },
+    {
+        "description": "Go to the file end",
+        "shortcut": "esc G",
+        "application": "Nvim",
+        "comment": "Move the cursor to the end of the page (scroll down)"
+    },
+    {
+        "description": "Go to the line begin",
+        "shortcut": "esc 0",
+        "application": "Nvim",
+        "comment": "Move the cursor to the beginning of the current line"
+    },
+    {
+        "description": "Go to the line end",
+        "shortcut": "esc $",
+        "application": "Nvim",
+        "comment": "Move the cursor to the end of the current line"
+    },
+    {
+        "description": "Paste",
+        "shortcut": "esc p",
+        "application": "Nvim",
+        "comment": "Paste after the cursor"
+    },
+    {
+        "description": "Paste the Nvim register",
+        "shortcut": "esc \" ap",
+        "application": "Nvim",
+        "comment": "Paste the content from Nvim register 'a'"
+    },
+    {
+        "description": "Paste the system clipboard",
+        "shortcut": "esc \" + p",
+        "application": "Nvim",
+        "comment": "Paste the content from the system clipboard"
+    },
+    {
+        "description": "Quit",
+        "shortcut": "esc :q enter",
+        "application": "Nvim",
+        "comment": "Quit Nvim"
+    },
+    {
+        "description": "Redo",
+        "shortcut": "esc ctrl+r",
+        "application": "Nvim",
+        "comment": "Redo the last undone change"
+    },
+    {
+        "description": "Replace in File",
+        "shortcut": "esc :%s/old/new/g enter",
+        "application": "Nvim",
+        "comment": "Replace 'old' with 'new' throughout the file"
+    },
+    {
+        "description": "Save File",
+        "shortcut": "esc :w enter",
+        "application": "Nvim",
+        "comment": "Save the current file"
+    },
+    {
+        "description": "Save and Quit",
+        "shortcut": "esc :wq enter",
+        "application": "Nvim",
+        "comment": "Save the current file and quit Nvim"
+    },
+    {
+        "description": "Search and replace all",
+        "shortcut": "esc :%s/old/new/g",
+        "application": "Nvim",
+        "comment": "Search for 'old' and replace with 'new' throughout the file"
+    },
+    {
+        "description": "Search and replace one",
+        "shortcut": "esc :s/old/new/gc",
+        "application": "Nvim",
+        "comment": "Search for 'old' and replace with 'new' (confirm each replacement)"
+    },
+    {
+        "description": "Search case-insensitive",
+        "shortcut": "esc /\\\\C",
+        "application": "Nvim",
+        "comment": "Search case-insensitive within the file"
+    },
+    {
+        "description": "Search case-sensitive",
+        "shortcut": "esc /\\\\c left left",
+        "application": "Nvim",
+        "comment": "Search case-sensitive within the file"
+    },
+    {
+        "description": "Search in File",
+        "shortcut": "esc /",
+        "application": "Nvim",
+        "comment": "Search within the file"
+    },
+    {
+        "description": "Quit Without Saving",
+        "shortcut": "esc :q! enter",
+        "application": "Nvim",
+        "comment": "Quit Nvim without saving changes"
+    }
+]

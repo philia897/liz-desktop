@@ -1,0 +1,13 @@
+{
+    "leftbrace": "[",
+    "rightbrace": "]",
+    "equal": "=",
+    "minus": "-",
+    "comma": ",",
+    "dot": ".",
+    "slash": "/",
+    "semicolon": ";",
+    "apostrophe": "'",
+    "grave": "`",
+    "backslash": "\\"
+}

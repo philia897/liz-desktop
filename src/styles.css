@@ -1,0 +1,112 @@
+/* Define root variables for light and dark modes */
+:root {
+  --bg-color: rgba(245, 245, 245, 0.7);
+  --text-color: #333;
+  --highlight-color: #2563eb;
+  --input-bg: #ffffff;
+  --input-border: #ddd;
+  --list-item-bg: #ffffff;
+  --list-item-hover-bg: #3b82f6;
+  --list-item-selected-bg: #2563eb;
+  --list-item-hover-color: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: rgba(46, 46, 46, 0.7);
+    --text-color: #e0e0e0;
+    --highlight-color: #2aa198;
+    --input-bg: #2e2e2e;
+    --input-border: #444;
+    --list-item-bg: #333;
+    --list-item-hover-bg: #56b6c2;
+    --list-item-selected-bg: #2aa198;
+    --list-item-hover-color: #000000;
+  }
+}
+
+/* Global body styles */
+body {
+  color: var(--text-color);
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  /* justify-content: center; */
+  /* align-items: center; */
+  height: 100vh;
+}
+
+
+
+/* Main app container */
+#app {
+  width: 100%;
+  background-color: var(--bg-color);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Search input box */
+#search {
+  width: 100%;
+  padding: 15px;
+  font-size: 16px;
+  border: 1px solid var(--input-border);
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  box-sizing: border-box;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.3s ease-in-out;
+}
+
+#search:focus {
+  border-color: var(--highlight-color);
+}
+
+/* Shortcut list container */
+.shortcut-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  /* max-height: 200px; */
+  overflow-y: auto;
+  flex-grow: 1;
+  padding: 5px;
+}
+
+/* Each list item styling */
+.shortcut-list li {
+  padding: 12px 15px;
+  background-color: var(--list-item-bg);
+  border-radius: 8px;
+  margin-bottom: 2px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Hover and selected state */
+/* .shortcut-list li:hover{
+  background-color: var(--list-item-hover-bg);
+  color: var(--list-item-hover-color);
+} */
+
+.shortcut-list li.selected {
+  background-color: var(--list-item-selected-bg);
+  color: var(--list-item-hover-color);
+}
+
+/* Smooth transitions for the list and search bar */
+#search, .shortcut-list li {
+  transition: all 0.3s ease;
+}
+
+/* Bold text styling for search result emphasis */
+.bold {
+  font-weight: bold;
+}
+

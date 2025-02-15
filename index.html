@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liz Shortcut Helper</title>
+  <link rel="stylesheet" href="src/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <input data-tauri-drag-region type="text" id="search" placeholder="Search shortcuts..." />
+    <ul id="search-results" class="shortcut-list" style="display: none;"></ul>  <!-- Show the search results -->
+    <ul id="shortcut-list" class="shortcut-list"></ul> <!-- Show all the shortcuts -->
+  </div>
+  <script type="module" src="src/main.ts"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+[
+    {
+        "description":"Show Yazi help",
+        "shortcut":"~",
+        "application":"Yazi",
+        "comment":"Show Yazi help manager, which support filtering as well"
+    },
+    {
+        "description":"Quit",
+        "shortcut":"q",
+        "application":"Yazi",
+        "comment":"Quit Yazi"
+    },
+    {
+        "description":"Search files by name",
+        "shortcut":"s",
+        "application":"Yazi",
+        "comment":"Search files by name using fd"
+    },
+    {
+        "description":"Search files by content",
+        "shortcut":"S",
+        "application":"Yazi",
+        "comment":"Search files by content using ripgrep"
+    },
+    {
+        "description":"Cancel the ongoing search",
+        "shortcut":"ctrl+s",
+        "application":"Yazi",
+        "comment":"Cancel the ongoing search"
+    },
+    {
+        "description":"Search files by content",
+        "shortcut":"S",
+        "application":"Yazi",
+        "comment":"Search files by content using ripgrep"
+    }
+]

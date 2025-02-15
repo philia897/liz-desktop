@@ -1,0 +1,38 @@
+[
+    {
+        "description": "To command begin",
+        "shortcut": "ctrl+a",
+        "application": "Terminal",
+        "comment": "Go to begin of command prompt"
+    },
+    {
+        "description": "To command end",
+        "shortcut": "ctrl+e",
+        "application": "Terminal",
+        "comment": "Go to end of command prompt"
+    },
+    {
+        "description": "Clear command prompt",
+        "shortcut": "ctrl+u",
+        "application": "Terminal",
+        "comment": "Clear the command prompt typed"
+    },
+    {
+        "description": "Search command history",
+        "shortcut": "ctrl+r",
+        "application": "Terminal",
+        "comment": "Search command history in the terminal"
+    },
+    {
+        "description": "Search command history (next)",
+        "shortcut": "ctrl+n",
+        "application": "Terminal",
+        "comment": "Next search result of history"
+    },
+    {
+        "description": "Search command history (previous)",
+        "shortcut": "ctrl+p",
+        "application": "Terminal",
+        "comment": "Previous search result of history"
+    }
+]

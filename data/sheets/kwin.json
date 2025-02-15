@@ -1,0 +1,20 @@
+[
+    {
+        "description": "Maximize Window",
+        "shortcut": "meta+pageup",
+        "application": "KWin",
+        "comment": ""
+    },
+    {
+        "description": "Minimize Window",
+        "shortcut": "meta+pagedown",
+        "application": "KWin",
+        "comment": ""
+    },
+    {
+        "description": "Close Window",
+        "shortcut": "alt+f4",
+        "application": "KWin",
+        "comment": ""
+    }
+]
