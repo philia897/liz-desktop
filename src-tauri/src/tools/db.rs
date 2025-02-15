@@ -185,15 +185,39 @@ impl UserDataTable {
         Ok(Self { data: all_data })
     }
 
+    fn read_keymap(&self, keymap_path: &str) -> HashMap<String, String> {
+        // Attempt to open the file
+        let mut file = match File::open(keymap_path) {
+            Ok(f) => f,
+            Err(e) => {
+                eprint!("Error opening keymap file: {}\n", e);
+                return HashMap::new(); // Return an empty map in case of error
+            }
+        };
+    
+        // Read the contents of the file
+        let mut contents = String::new();
+        if let Err(e) = file.read_to_string(&mut contents) {
+            eprint!("Error reading keymap file: {}\n", e);
+            return HashMap::new(); // Return an empty map in case of error
+        }
+    
+        // Parse the contents as JSON
+        match serde_json::from_str(&contents) {
+            Ok(key_event_codes) => key_event_codes,
+            Err(e) => {
+                eprint!("Error parsing keymap JSON: {}\n", e);
+                HashMap::new() // Return an empty map in case of error
+            }
+        }
+    }
+
     pub fn transform_to_data_table(&self, old_table : &DataTable, keymap_path: &str) -> Result<DataTable, Box<dyn Error>> {
         // get a HashMap of <formatted, hit_number>
         let map_fh: HashMap<String, i64> = old_table.data.iter().map(|row| (row.formatted.clone(), row.hit_number)).collect();
 
         // Read the key event codes from file
-        let mut file = File::open(keymap_path).expect("Unable to open keymap file");
-        let mut contents = String::new();
-        file.read_to_string(&mut contents).expect("Unable to read keymap file");
-        let key_event_codes: HashMap<String, String> = serde_json::from_str(&contents).expect("Unable to parse JSON");
+        let key_event_codes: HashMap<String, String> = self.read_keymap(keymap_path);
 
         let mut new_table = DataTable::new();
         for row in &self.data {
