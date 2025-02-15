@@ -7,7 +7,7 @@ on:
 # This workflow will build your tauri app without uploading it anywhere.
 
 jobs:
-  test-tauri:
+  build-tauri:
     strategy:
       fail-fast: false
       matrix:
@@ -48,7 +48,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: liz-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
+          tagName: v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
           releaseName: 'Liz v__VERSION__'
           releaseBody: 'See the assets to download this version and install.'
           releaseDraft: true
