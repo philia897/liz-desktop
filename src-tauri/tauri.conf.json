@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "liz",
+  "productName": "liz-desktop",
   "version": "0.1.0",
   "identifier": "com.liz.app",
   "build": {
@@ -13,7 +13,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "liz",
+        "title": "Liz",
         "width": 800,
         "minWidth": 500,
         "height": 600,
@@ -36,7 +36,7 @@
     "targets": "all",
     "publisher": "philia897",
     "longDescription": "Liz: A cross-platform shortcut helper and auto-executor",
-    "shortDescription": "Liz: shortcut helper",
+    "shortDescription": "Liz: Shortcut Helper and Executor",
     "icon": [
       "icons/icon_32.png",
       "icons/icon_128.png",
