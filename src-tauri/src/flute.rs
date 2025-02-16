@@ -41,7 +41,6 @@ impl Flute {
 
     pub fn play(&mut self, cmd: &LizCommand) -> BlueBirdResponse {
         match cmd.action.as_str() {
-            "get_trigger_shortcut" => self.command_get_trigger_shortcut(cmd),
             "get_shortcuts" => self.command_get_shortcuts(cmd),
             "reload" => self.command_reload(cmd),
             "execute" => self.command_execute(cmd),
@@ -55,13 +54,6 @@ impl Flute {
         BlueBirdResponse {
             code : StateCode::OK,
             results : self.music_sheet.get_formatted_vec()
-        }
-    }
-
-    fn command_get_trigger_shortcut(&self, _cmd: &LizCommand) -> BlueBirdResponse {
-        BlueBirdResponse {
-            code : StateCode::OK,
-            results : vec![self.rhythm.trigger_shortcut.clone()]
         }
     }
     

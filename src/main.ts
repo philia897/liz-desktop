@@ -1,7 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { register } from '@tauri-apps/plugin-global-shortcut';
 import Fuse from 'fuse.js';
 
 enum StateCode {
@@ -54,29 +53,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     searchBar.focus();  // Focus on the search input when the window is active
   }
 
-  // Register the trigger shortcut to wake up Liz
-  async function register_trigger_shortcut() {
-    const response = await invoke<BlueBirdResponse>('send_command', {
-      cmd: { action: 'get_trigger_shortcut', args: [] },
-    });
-    let trigger_sc: string;
-    if (response.results.length > 0) {
-      trigger_sc = response.results[0];
-      // Proceed with using trigger_sc
-    } else {
-      trigger_sc = "Ctrl+Alt+L"
-      // Handle the empty results case
-    }
-    await register(trigger_sc, (event) => {
-      console.log(event.shortcut);
-      if (event.state === 'Pressed') {
-        appWindow.show()
-        appWindow.setFocus()
-      }
-    });
-  }
+  // // Register the trigger shortcut to wake up Liz
+  // async function register_trigger_shortcut() {
+  //   const response = await invoke<BlueBirdResponse>('send_command', {
+  //     cmd: { action: 'get_trigger_shortcut', args: [] },
+  //   });
+  //   let trigger_sc: string;
+  //   if (response.results.length > 0) {
+  //     trigger_sc = response.results[0];
+  //     // Proceed with using trigger_sc
+  //   } else {
+  //     trigger_sc = "Ctrl+Alt+L"
+  //     // Handle the empty results case
+  //   }
+  //   await register(trigger_sc, (event) => {
+  //     console.log(event.shortcut);
+  //     if (event.state === 'Pressed') {
+  //       appWindow.show()
+  //       appWindow.setFocus()
+  //     }
+  //   });
+  // }
 
-  register_trigger_shortcut()
+  // register_trigger_shortcut()
 
   // Fetch shortcuts from Rust via Tauri command
   async function fetchShortcuts() {

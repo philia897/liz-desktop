@@ -109,3 +109,38 @@ pub fn create_flute() -> Result<Flute, Box<dyn std::error::Error>> {
     flute.calibrate();
     Ok(flute)
 }
+
+pub fn register_trigger_shortcut(app: &tauri::App, trigger_sc: &str) -> Result<(), Box<dyn std::error::Error>> {
+    use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, ShortcutState};
+
+    let trigger_sc: Shortcut = trigger_sc.parse()?;
+    app.handle().plugin(
+        tauri_plugin_global_shortcut::Builder::new().with_handler(move | app, shortcut, event| {
+            if shortcut == &trigger_sc {
+                match event.state() {
+                  ShortcutState::Pressed => {
+                    if let Some(win) = app.get_webview_window("main") {
+                        if let Err(e) = win.show() {
+                            println!("Failed to show the app, err: {}", e);
+                        }
+                        if let Err(e) = win.set_focus() {
+                            println!("Failed to focus the app, err: {}", e);
+                        }
+                    } else {
+                        println!("handle_menu_events: Failed to get the app window");
+                    }
+                  }
+                  ShortcutState::Released => {}
+                }
+            } else {
+                eprintln!("Wrong shortcut: {}", shortcut);
+            }
+        })
+        .build(),
+    )?;
+
+    app.global_shortcut().register(trigger_sc)?;
+
+    println!("Registered trigger shortcut: {}", trigger_sc);
+    Ok(())
+}

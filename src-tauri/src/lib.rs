@@ -27,7 +27,7 @@ fn execute_cmd(cmd: LizCommand, app: &AppHandle) -> BlueBirdResponse {
 fn send_command(cmd: LizCommand, app: AppHandle) -> BlueBirdResponse {
     match cmd.action.as_str() {
         "reload" => {
-            let resp = execute_cmd(cmd, &app);
+            let resp: BlueBirdResponse = execute_cmd(cmd, &app);
             let _ = app.emit("fetch-again", "");
             resp
         }
@@ -59,7 +59,7 @@ pub fn run() {
     }
 
     let mut builder = tauri::Builder::default()
-        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        // .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_opener::init());
 
     #[cfg(desktop)]
@@ -78,8 +78,10 @@ pub fn run() {
 
     builder
         .setup(|app| {
+            let trigger_shortcut: String;
             match create_flute() {
                 Ok(flute) => {
+                    trigger_shortcut = flute.rhythm.trigger_shortcut.clone();
                     let _ = app.manage(Mutex::new(flute));
                 },
                 Err(e) => {
@@ -88,6 +90,9 @@ pub fn run() {
                 }
             }
             let _ = setup::setup_tray(app);
+            if let Err(e) = setup::register_trigger_shortcut(app, trigger_shortcut.as_str()) {
+                eprintln!("Failed to register trigger shortcut: {}", e);
+            }
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![send_command])
