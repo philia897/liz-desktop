@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::tools::{db::{DataTable, UserDataTable}, exec::execute_shortcut_enigo, rhythm::Rhythm};
+use crate::tools::{db::{ShortcutDB, UserSheet}, exec::execute_shortcut_enigo, rhythm::Rhythm};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub enum StateCode {
@@ -23,7 +23,7 @@ pub struct BlueBirdResponse {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Flute {
-    pub music_sheet : DataTable,
+    pub music_sheet : ShortcutDB,
     pub rhythm : Rhythm
 }
 
@@ -72,21 +72,21 @@ impl Flute {
         } else {
             user_data_path = &cmd.args[0];
         }
-        match UserDataTable::import_from(&user_data_path) {
+        match UserSheet::import_from(&user_data_path) {
             Ok(user_data) => {
-                self.music_sheet = user_data.transform_to_data_table(&self.music_sheet,&self.rhythm.keymap_path).expect("222");
+                self.music_sheet = user_data.transform_to_db(&self.music_sheet, &self.rhythm.keymap_path);
+                BlueBirdResponse {
+                    code : StateCode::OK,
+                    results : vec!["Reload Done".to_string()]
+                }
             }
             Err(e) => {
                 eprintln!("Failure: failed to import user data from: {}, error: {}", user_data_path, e);
-                return BlueBirdResponse {
+                BlueBirdResponse {
                     code : StateCode::FAIL,
                     results : vec!["Failure:".to_string(), "Failed to import:".to_string(), user_data_path.to_string()]
                 }
             }
-        }
-        BlueBirdResponse {
-            code : StateCode::OK,
-            results : vec!["Reload Done".to_string()]
         }
     }
     

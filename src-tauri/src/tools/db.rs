@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
  * The DataRow maintained by Bluebird, which is locked and can not be modified by user.
  */
 #[derive(Debug, Serialize, Deserialize)]
-struct DataRow {
+struct Shortcut {
     hit_number: i64,
     comment: String,
     keycode: String,
@@ -16,11 +16,11 @@ struct DataRow {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct DataTable {
-    data: Vec<DataRow>,
+pub struct ShortcutDB {
+    data: Vec<Shortcut>,
 }
 
-impl DataTable {
+impl ShortcutDB {
     /// Initialize an empty table
     pub fn new() -> Self {
         Self { data: Vec::new() }
@@ -29,7 +29,7 @@ impl DataTable {
     /// Import from JSON file
     pub fn import_from_json(file_path: &str) -> Result<Self, Box<dyn Error>> {
         let file = File::open(file_path)?;
-        let data: Vec<DataRow> = serde_json::from_reader(file)?;
+        let data: Vec<Shortcut> = serde_json::from_reader(file)?;
         Ok(Self{data: data})
     }
 
@@ -58,7 +58,7 @@ impl DataTable {
     }
 
     /// Method to add a new row to the DataTable
-    fn add_row(&mut self, new_row: DataRow) {
+    fn add_row(&mut self, new_row: Shortcut) {
         self.data.push(new_row);
     }
 
@@ -74,37 +74,22 @@ impl DataTable {
 
     /// Sort by a specific column name
     pub fn sort_by_column(&mut self, column: &str, ascending: bool) {
+        // Decide on the comparison function based on the column, done once
+        let comparator: Box<dyn Fn(&Shortcut, &Shortcut) -> std::cmp::Ordering> = match column {
+            "hit_number" => Box::new(|a, b| a.hit_number.cmp(&b.hit_number)),
+            "comment" => Box::new(|a, b| a.comment.cmp(&b.comment)),
+            "keycode" => Box::new(|a, b| a.keycode.cmp(&b.keycode)),
+            "formatted" => Box::new(|a, b| a.formatted.cmp(&b.formatted)),
+            _ => Box::new(|_, _| std::cmp::Ordering::Equal),  // Handle unknown column names
+        };
+
+        // Now sort the data using the pre-selected comparator
         self.data.sort_by(|a, b| {
-            match column {
-                "hit_number" => {
-                    if ascending {
-                        a.hit_number.cmp(&b.hit_number)
-                    } else {
-                        b.hit_number.cmp(&a.hit_number)
-                    }
-                }
-                "comment" => {
-                    if ascending {
-                        a.comment.cmp(&b.comment)
-                    } else {
-                        b.comment.cmp(&a.comment)
-                    }
-                }
-                "keycode" => {
-                    if ascending {
-                        a.keycode.cmp(&b.keycode)
-                    } else {
-                        b.keycode.cmp(&a.keycode)
-                    }
-                }
-                "formatted" => {
-                    if ascending {
-                        a.formatted.cmp(&b.formatted)
-                    } else {
-                        b.formatted.cmp(&a.formatted)
-                    }
-                }
-                _ => std::cmp::Ordering::Equal,
+            let ordering = comparator(a, b);
+            if ascending {
+                ordering
+            } else {
+                ordering.reverse()
             }
         });
     }
@@ -131,11 +116,11 @@ impl UserDataRow {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct UserDataTable {
+pub struct UserSheet {
     data: Vec<UserDataRow>,
 }
 
-impl UserDataTable {
+impl UserSheet {
     // Initialize an empty table
     // pub fn new() -> Self {
     //     Self { data: Vec::new() }
@@ -145,9 +130,9 @@ impl UserDataTable {
         let metadata = fs::metadata(path)?;
 
         if metadata.is_file() {
-            UserDataTable::import_from_json(path)
+            UserSheet::import_from_json(path)
         } else if metadata.is_dir() {
-            UserDataTable::import_from_json_dir(path)
+            UserSheet::import_from_json_dir(path)
         } else {
             Err(format!("{} is neither a file nor a directory.", path).into())
         }
@@ -212,14 +197,15 @@ impl UserDataTable {
         }
     }
 
-    pub fn transform_to_data_table(&self, old_table : &DataTable, keymap_path: &str) -> Result<DataTable, Box<dyn Error>> {
+    /// Replace the shortcuts stored in the old music_sheet while maintaining its hit_numbers for repeated shortcuts
+    pub fn transform_to_db(&self, old_db : &ShortcutDB, keymap_path: &str) -> ShortcutDB {
         // get a HashMap of <formatted, hit_number>
-        let map_fh: HashMap<String, i64> = old_table.data.iter().map(|row| (row.formatted.clone(), row.hit_number)).collect();
+        let map_fh: HashMap<String, i64> = old_db.data.iter().map(|row| (row.formatted.clone(), row.hit_number)).collect();
 
         // Read the key event codes from file
         let key_event_codes: HashMap<String, String> = self.read_keymap(keymap_path);
 
-        let mut new_table = DataTable::new();
+        let mut new_db = ShortcutDB::new();
         for row in &self.data {
             let keycode: String;
             let formatted : String;
@@ -236,7 +222,7 @@ impl UserDataTable {
                     comment : row.comment.clone()
                 }.format_output();
             }
-            new_table.add_row(DataRow {
+            new_db.add_row(Shortcut {
                 hit_number : *map_fh.get(&formatted).unwrap_or(&0),
                 comment : row.comment.clone(),
                 keycode : keycode,
@@ -244,7 +230,7 @@ impl UserDataTable {
             });
         }
 
-        Ok(new_table)
+        new_db
     }
 
 }
@@ -256,17 +242,19 @@ impl UserDataTable {
  * => 126.1 104.1 104.0 126.0 15.1 15.0 [STR]+ 123!@#[STR] 15.1 15.0 [STR]+ ABC[STR]
  * Where keycode of meta is 126, pageup (104), tab (15)
  * type 123!@ means directly type these characters "123!@".
+ * Note: "ctrl + c" will be consider press "ctrl", then "+" then "c", as they are splited by space. 
  */
 fn convert_shortcut_to_key_presses(shortcut: &str, key_event_codes: &HashMap<String, String>) -> Option<String> {
     let mut result = Vec::new();
 
+    // Split by marker [STR] to different blocks
     let ss: Vec<&str> = shortcut.split("[STR]").collect();
     
     for s in ss {
         if s.is_empty() {
             continue;
         }
-        if s.starts_with("+") {
+        if s.starts_with("+") {  // Typing the string
             let type_str: &str = &s[2..];
             result.push(format!("[STR]+ {}[STR]", type_str.trim()));
         } else {
@@ -277,9 +265,9 @@ fn convert_shortcut_to_key_presses(shortcut: &str, key_event_codes: &HashMap<Str
                 if part.is_empty() {
                     continue;
                 }
-                if part.contains('+') && part != "+" {
+                if part.contains('+') && part != "+" {   // Execute shortcut like ctrl+c, ctrl+v
                     let keys: Vec<&str> = part.split('+').collect();
-                    for key in &keys {
+                    for key in &keys {     // Press
                         let key: String = key.trim().to_lowercase();
                         if let Some(event_code) = key_event_codes.get(&key) {
                             result.push(format!("{}.1", event_code));
@@ -287,7 +275,7 @@ fn convert_shortcut_to_key_presses(shortcut: &str, key_event_codes: &HashMap<Str
                             result.push(format!("{}.1", key));
                         }
                     }
-                    for key in keys.iter().rev() {
+                    for key in keys.iter().rev() {   // Release
                         let key: String = key.trim().to_lowercase();
                         if let Some(event_code) = key_event_codes.get(&key) {
                             result.push(format!("{}.0", event_code));
@@ -295,12 +283,16 @@ fn convert_shortcut_to_key_presses(shortcut: &str, key_event_codes: &HashMap<Str
                             result.push(format!("{}.0", key));
                         }
                     }
-                } else {
+                } else {     // Not a shortcut, either one single key or a string to type
                     let key = part.trim().to_lowercase();
-                    if let Some(event_code) = key_event_codes.get(&key) {
+                    if let Some(event_code) = key_event_codes.get(&key) {  // Press one key
                         result.push(format!("{}.1", event_code));
                         result.push(format!("{}.0", event_code));
-                    } else {
+                    } else if key.len() == 1 {              // Press one character
+                        let k = part.trim();
+                        result.push(format!("{}.1", k));
+                        result.push(format!("{}.0", k));
+                    } else {                  //  Type the string
                         result.push(format!("[STR]+ {}[STR]", part.trim()));
                     }
                 }
@@ -311,3 +303,68 @@ fn convert_shortcut_to_key_presses(shortcut: &str, key_event_codes: &HashMap<Str
     Some(result.join(" "))
 }
 
+
+
+//  TEST
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_convert_shortcut_to_key_presses() {
+        let mut key_event_codes = HashMap::new();
+        key_event_codes.insert("meta".to_string(), "126".to_string());
+        key_event_codes.insert("pageup".to_string(), "104".to_string());
+        key_event_codes.insert("tab".to_string(), "15".to_string());
+
+        // Test 1: Basic conversion with keys mapped to keycodes
+        let shortcut = "Meta+S Tab";
+        let expected = Some("126.1 s.1 s.0 126.0 15.1 15.0".to_string());
+        let result = convert_shortcut_to_key_presses(shortcut, &key_event_codes);
+        assert_eq!(result, expected);
+
+        // Test 2: Test with characters (e.g., numbers or symbols)
+        let shortcut = "123!@# tab ABC";
+        let expected = Some("[STR]+ 123!@#[STR] 15.1 15.0 [STR]+ ABC[STR]".to_string());
+        let result = convert_shortcut_to_key_presses(shortcut, &key_event_codes);
+        assert_eq!(result, expected);
+
+        // Test 3: Test with more complex shortcuts (e.g., multiple key combinations)
+        let shortcut = "meta+pageup tab 123!@# meta+tab";
+        let expected = Some("126.1 104.1 104.0 126.0 15.1 15.0 [STR]+ 123!@#[STR] 126.1 15.1 15.0 126.0".to_string());
+        let result = convert_shortcut_to_key_presses(shortcut, &key_event_codes);
+        assert_eq!(result, expected);
+
+        // Test 4: Test with unrecognized keys (e.g., no mapping for 'enter')
+        let shortcut = "enter tab";
+        let expected = Some("[STR]+ enter[STR] 15.1 15.0".to_string());
+        let result = convert_shortcut_to_key_presses(shortcut, &key_event_codes);
+        assert_eq!(result, expected);
+
+        // Test 5: Test with additional '+' combinations
+        let shortcut = "meta+tab+pageup";
+        let expected = Some("126.1 15.1 104.1 104.0 15.0 126.0".to_string());
+        let result = convert_shortcut_to_key_presses(shortcut, &key_event_codes);
+        assert_eq!(result, expected);
+
+        // Test 6: Test empty input
+        let shortcut = "";
+        let expected = Some("".to_string());
+        let result = convert_shortcut_to_key_presses(shortcut, &key_event_codes);
+        assert_eq!(result, expected);
+
+        // Test 7: Test plus with space
+        let shortcut = "a + b + c";
+        let expected = Some("a.1 a.0 +.1 +.0 b.1 b.0 +.1 +.0 c.1 c.0".to_string());
+        let result = convert_shortcut_to_key_presses(shortcut, &key_event_codes);
+        assert_eq!(result, expected);
+
+        // Test 8: Test [STR]
+        let shortcut = "meta+pageup tab [STR]+ 123! @# [STR] meta+tab";
+        let expected = Some("126.1 104.1 104.0 126.0 15.1 15.0 [STR]+ 123! @#[STR] 126.1 15.1 15.0 126.0".to_string());
+        let result = convert_shortcut_to_key_presses(shortcut, &key_event_codes);
+        assert_eq!(result, expected);
+
+    }
+}

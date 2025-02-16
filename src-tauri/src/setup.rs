@@ -3,7 +3,7 @@ use tauri::{
     menu::{Menu, MenuEvent, MenuItem}, tray::TrayIconBuilder, AppHandle, Emitter, Manager
 };
 
-use crate::{flute::{Flute, LizCommand}, tools::{db::DataTable, rhythm::Rhythm, utils::get_app_config_folder}};
+use crate::{flute::{Flute, LizCommand}, tools::{db::ShortcutDB, rhythm::Rhythm, utils::get_app_config_folder}};
 use std::{fs::DirBuilder, sync::Mutex};
 use std::io;
 
@@ -99,10 +99,10 @@ pub fn create_flute() -> Result<Flute, Box<dyn std::error::Error>> {
     let rhythm: Rhythm = Rhythm::read_rhythm()?;
     let music_sheet_path = &rhythm.music_sheet_path;
     let mut flute: Flute = Flute {
-        music_sheet : DataTable::import_from_json(music_sheet_path)
+        music_sheet : ShortcutDB::import_from_json(music_sheet_path)
                 .unwrap_or_else(|_| {
                     eprintln!("Failed to load music sheet from {}", music_sheet_path);
-                    DataTable::new()  // Return a default instance if loading fails
+                    ShortcutDB::new()  // Return a default instance if loading fails
                 }),
         rhythm : rhythm
     };
