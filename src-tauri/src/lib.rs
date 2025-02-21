@@ -2,11 +2,20 @@ use std::{process::exit, sync::Mutex};
 
 use setup::create_flute;
 use tauri::{AppHandle, Emitter, Manager, RunEvent};
+use clap::Parser;
 
 mod flute;
 mod setup;
 mod tools;
 use flute::{BlueBirdResponse, LizCommand, StateCode, Flute};
+
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// Path to the configuration file
+    #[arg(short, long, value_name = "PATH")]
+    config: Option<String>,
+}
 
 fn execute_cmd(cmd: LizCommand, app: &AppHandle) -> BlueBirdResponse {
     match app.state::<Mutex<Flute>>().lock() {
@@ -58,6 +67,9 @@ pub fn run() {
         exit(1);
     }
 
+    // Parse the arguments
+    let args = Args::parse();
+
     let mut builder = tauri::Builder::default()
         // .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_opener::init());
@@ -79,7 +91,7 @@ pub fn run() {
     builder
         .setup(|app| {
             let trigger_shortcut: String;
-            match create_flute() {
+            match create_flute(args.config) {
                 Ok(flute) => {
                     trigger_shortcut = flute.rhythm.trigger_shortcut.clone();
                     let _ = app.manage(Mutex::new(flute));

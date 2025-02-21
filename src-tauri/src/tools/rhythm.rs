@@ -38,11 +38,15 @@ impl Default for Rhythm {
 }
 
 impl Rhythm {
-    pub fn read_rhythm() -> Result<Self, Box<dyn std::error::Error>> {
-        let rhythm_path: PathBuf = get_app_config_folder().join("rhythm.toml");
+    pub fn read_rhythm(rhythm_path_str: Option<String>) -> Result<Self, Box<dyn std::error::Error>> {
+        
+        let rhythm_path: PathBuf = match rhythm_path_str {
+            Some(rhythm_path_str) => PathBuf::from(rhythm_path_str),
+            None => get_app_config_folder().join("rhythm.toml"),
+        };
     
         if !rhythm_path.exists() {
-            eprintln!("Warning: rhythm config file not found, using default values.");
+            eprintln!("Warning: rhythm config file {} not found, using default values.", rhythm_path.display());
             return Ok(Rhythm::default());
         }
 

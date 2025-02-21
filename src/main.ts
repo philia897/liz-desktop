@@ -53,30 +53,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     searchBar.focus();  // Focus on the search input when the window is active
   }
 
-  // // Register the trigger shortcut to wake up Liz
-  // async function register_trigger_shortcut() {
-  //   const response = await invoke<BlueBirdResponse>('send_command', {
-  //     cmd: { action: 'get_trigger_shortcut', args: [] },
-  //   });
-  //   let trigger_sc: string;
-  //   if (response.results.length > 0) {
-  //     trigger_sc = response.results[0];
-  //     // Proceed with using trigger_sc
-  //   } else {
-  //     trigger_sc = "Ctrl+Alt+L"
-  //     // Handle the empty results case
-  //   }
-  //   await register(trigger_sc, (event) => {
-  //     console.log(event.shortcut);
-  //     if (event.state === 'Pressed') {
-  //       appWindow.show()
-  //       appWindow.setFocus()
-  //     }
-  //   });
-  // }
-
-  // register_trigger_shortcut()
-
   // Fetch shortcuts from Rust via Tauri command
   async function fetchShortcuts() {
     const response = await invoke<BlueBirdResponse>('send_command', {
@@ -101,7 +77,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       while (searchResultsContainer.firstChild) {
         searchResultsContainer.removeChild(searchResultsContainer.firstChild);
       }  // Clear previous search resulsts list
-      searchBar.focus();  // Focus on the search input when the window is active
     }
     shortcutListContainer.style.display = 'block';
     shortcutListContainer.scrollTop = 0;
@@ -269,8 +244,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // When the window has lost focus, run the `shortcut_task` specified in `executeShortcut`
   appWindow.onFocusChanged(async () => {
-    // Ensure the window has truly lost focus and we have a valid `shortcut_task` to execute
-    if (!await appWindow.isFocused() && shortcut_task) {
+    if (await appWindow.isFocused()) {
+      if (searchBar) {
+        searchBar.focus();  // Focus on the search input
+      }
+    } else {  // Ensure the window has truly lost focus and we have a valid `shortcut_task` to execute
+      if (!shortcut_task) {
+        return
+      }
       try {
         // Send the "execute" command to Rust with the shortcut task
         const response = await invoke<BlueBirdResponse>('send_command', {

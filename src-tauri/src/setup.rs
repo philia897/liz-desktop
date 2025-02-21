@@ -95,8 +95,8 @@ pub fn create_liz_folder() -> io::Result<()> {
 }
 
 
-pub fn create_flute() -> Result<Flute, Box<dyn std::error::Error>> {
-    let rhythm: Rhythm = Rhythm::read_rhythm()?;
+pub fn create_flute(rhythm_path: Option<String>) -> Result<Flute, Box<dyn std::error::Error>> {
+    let rhythm: Rhythm = Rhythm::read_rhythm(rhythm_path)?;
     let music_sheet_path = &rhythm.music_sheet_path;
     let mut flute: Flute = Flute {
         music_sheet : ShortcutDB::import_from_json(music_sheet_path)
@@ -116,6 +116,7 @@ pub fn register_trigger_shortcut(app: &tauri::App, trigger_sc: &str) -> Result<(
     let trigger_sc: Shortcut = trigger_sc.parse()?;
     app.handle().plugin(
         tauri_plugin_global_shortcut::Builder::new().with_handler(move | app, shortcut, event| {
+            println!("{:?}", shortcut);
             if shortcut == &trigger_sc {
                 match event.state() {
                   ShortcutState::Pressed => {
