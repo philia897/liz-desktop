@@ -12,7 +12,7 @@ pub struct  Rhythm {
     pub music_sheet_path : String,  // Path for the lock file for Bluebird
     pub keymap_path : String,
     pub persist_freq_s : u64,  // The interval between two auto-persisting
-    pub interval_ms: u64, // for ydotool config
+    pub interval_ms: u64, // interval of each shortcut block. No need to set it normally.
     pub trigger_shortcut: String,
 }
 

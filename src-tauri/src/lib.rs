@@ -62,11 +62,6 @@ fn cleanup(app: &AppHandle) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    if let Err(e) = setup::create_liz_folder() {
-        eprintln!("Failed to get liz working dir because: {}", e);
-        exit(1);
-    }
-
     // Parse the arguments
     let args = Args::parse();
 

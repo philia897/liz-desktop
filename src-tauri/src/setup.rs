@@ -3,8 +3,8 @@ use tauri::{
     menu::{Menu, MenuEvent, MenuItem}, tray::TrayIconBuilder, AppHandle, Emitter, Manager
 };
 
-use crate::{flute::{Flute, LizCommand}, tools::{db::ShortcutDB, rhythm::Rhythm, utils::get_app_config_folder}};
-use std::{fs::DirBuilder, sync::Mutex};
+use crate::{flute::{Flute, LizCommand}, tools::{db::ShortcutDB, rhythm::Rhythm}};
+use std::{fs::DirBuilder, path::PathBuf, sync::Mutex};
 use std::io;
 
 /// Setup the tray, including its configuration and Menu.
@@ -80,8 +80,8 @@ fn handle_menu_events(app: &AppHandle, event: &MenuEvent) {
 }
 
 /// Create Liz folder if not exist.
-pub fn create_liz_folder() -> io::Result<()> {
-    let liz_folder = get_app_config_folder();
+fn create_liz_folder(liz_path:&str) -> io::Result<()> {
+    let liz_folder = PathBuf::from(liz_path);
 
     if !liz_folder.exists() {
         // Create the 'liz' folder if it does not exist
@@ -97,6 +97,12 @@ pub fn create_liz_folder() -> io::Result<()> {
 
 pub fn create_flute(rhythm_path: Option<String>) -> Result<Flute, Box<dyn std::error::Error>> {
     let rhythm: Rhythm = Rhythm::read_rhythm(rhythm_path)?;
+
+    if let Err(e) = create_liz_folder(&rhythm.liz_path) {
+        eprintln!("Failed to get liz working dir because: {}", e);
+        std::process::exit(1);
+    }
+
     let music_sheet_path = &rhythm.music_sheet_path;
     let mut flute: Flute = Flute {
         music_sheet : ShortcutDB::import_from_json(music_sheet_path)

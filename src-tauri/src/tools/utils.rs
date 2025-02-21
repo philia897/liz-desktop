@@ -1,7 +1,7 @@
 use std::env;
 use std::path::{Path, PathBuf};
 
-/// Get the config dir of Liz
+/// Get the default config dir of Liz
 /// If the environment variable "LIZ_DATA_DIR" set, use its value
 /// Or use the default value: where is the /liz folder under the system-specific config dir:
 /// - Windows: ~APPDATA/liz

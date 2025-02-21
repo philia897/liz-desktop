@@ -1,0 +1,21 @@
+# rhythm.toml - Configuration file for Rhythm
+
+# Only uncomment the settings you need.
+
+# Path of Liz data directory (the config folder)
+#liz_path = "/path/to/liz/config/folder"  # Replace with actual path if needed
+
+# Path for all the user shortcut sheets
+#user_sheets_path = "/path/to/liz/config/folder/sheets"  # Default is `<liz_path>/sheets`
+
+# Path for the lock file for Bluebird (music sheet)
+#music_sheet_path = "/path/to/liz/config/folder/music_sheet.lock"  # Default is `<liz_path>/music_sheet.lock`
+
+# Path to the keymap file
+#keymap_path = "/path/to/liz/config/folder/keymap_builtin.json"  # Default is `<liz_path>/keymap_builtin.json`
+
+# The interval of each shortcut block (in milliseconds)
+#interval_ms = 100  # Default is 100 milliseconds
+
+# Shortcut key to trigger a specific action
+#trigger_shortcut = "Ctrl+Alt+L"  # Default is "Ctrl+Alt+L"
