@@ -45,11 +45,13 @@ After installation and start the application, you should see an blank list of sh
 
 Following the [example](./data/sheets/examples.json) to create your own `sheet` or copy the examples [here](./data/sheets/). Put the sheets under `<liz_path>/sheets`. If the folder does not exists, create it.
 
-Then right click the tray and click `reload` to load the sheets in `<liz_path>/sheets`. click `show` to see the loaded shortcut list.
+Then right click the tray and click `Reload` to load the sheets in `<liz_path>/sheets`. click `Show` to see the loaded shortcut list.
 
-> Liz will not reload the sheets stored in `<liz_path>/sheets` until user click `reload`.
+You can use a `trigger_shortcut` to `Show` liz as well, the shortcut is `Ctrl+Alt+L` by default.
 
-> The tray manu also have `persist`, which will persist the data to a .lock file immediately. Liz will auto persist when the program exits.
+> Liz will not reload the sheets stored in `<liz_path>/sheets` until user click `Reload`.
+
+> The tray manu also have `Persist`, which will persist the data to a .lock file immediately. Liz will auto persist when the program exits.
 
 ### Configuration
 
@@ -77,7 +79,7 @@ Liz has these configuration options:
 
 - **`trigger_shortcut:`**  
   _Shortcut key to trigger a specific action_  
-  This is the default keyboard shortcut used to trigger a specific action in Liz. By default, it is set to `Ctrl+Alt+L`.
+  This is the default keyboard shortcut used to trigger `Show` in Liz. By default, it is set to `Ctrl+Alt+L`.
 
 You can control the Liz configuration via any of the following ways:
 
