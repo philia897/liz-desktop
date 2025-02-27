@@ -18,8 +18,8 @@ type BlueBirdResponse = {
 
 
 type Shortcut = {
-  idx_str: string;
-  content: string;
+  id: string;
+  sc: string;
 }
 
 let fuse: Fuse<Shortcut> | null = null;
@@ -27,7 +27,7 @@ let fuse: Fuse<Shortcut> | null = null;
 // Initialize or Update Fuse
 function updateFuse(shortcuts: Shortcut[]) {
   const fuseOptions = {
-    keys: ['content'], // Search within 'content'
+    keys: ['sc'], // Search within 'content'
     threshold: 0.4,    // Allow partial matches (lower is stricter)
     ignoreLocation: true, // Ignore match position for substring search
     includeMatches: true, // Include matched indices for highlighting
@@ -58,10 +58,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const response = await invoke<BlueBirdResponse>('send_command', {
       cmd: { action: 'get_shortcuts', args: [] },
     });
-    shortcuts = response.results.map((content, index) => ({
-      idx_str: index.toString(),
-      content,
-    }));
+    shortcuts = response.results.map((content) => {
+      // Parse the JSON string into a Shortcut
+      return JSON.parse(content) as Shortcut;
+    });
     updateFuse(shortcuts);
     renderList(shortcuts, shortcutListContainer);
   }
@@ -92,8 +92,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     list.forEach((item, index) => {
       const li = document.createElement('li');
-      li.innerHTML = item.content;
-      li.dataset.index = item.idx_str; // Store index for event delegation
+      li.innerHTML = item.sc;
+      li.dataset.index = item.id; // Store index for event delegation
       if (index === 0) li.classList.add('selected'); // First item selected by default
       fragment.appendChild(li);
     });

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::tools::{db::{ShortcutDB, UserSheet}, exec::execute_shortcut_enigo, rhythm::Rhythm};
+use crate::tools::{db::{MusicSheetDB, UserSheet}, exec::execute_shortcut_enigo, rhythm::Rhythm, utils::{id_to_string, string_to_id}};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub enum StateCode {
@@ -21,9 +21,9 @@ pub struct BlueBirdResponse {
     pub results: Vec<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct Flute {
-    pub music_sheet : ShortcutDB,
+    pub music_sheet : MusicSheetDB,
     pub rhythm : Rhythm
 }
 
@@ -51,9 +51,20 @@ impl Flute {
     }
     
     fn command_get_shortcuts(&self, _cmd: &LizCommand) -> BlueBirdResponse {
+        let fmt = &self.rhythm.shortcut_print_fmt;
+        let shortcuts = self.music_sheet.retrieve_all();
+        let sc_vec: Vec<String> = shortcuts.into_iter().map(|sc| {
+            // Create a JSON string
+            let json = serde_json::json!({
+                "id": id_to_string(sc.id),  // Convert id to string
+                "sc": sc.format_output(fmt)
+            });
+            // Serialize it into a JSON string
+            serde_json::to_string(&json).unwrap()  // Use unwrap or handle errors properly
+        }).collect();
         BlueBirdResponse {
             code : StateCode::OK,
-            results : self.music_sheet.get_formatted_vec()
+            results : sc_vec
         }
     }
     
@@ -66,7 +77,7 @@ impl Flute {
         }
         match UserSheet::import_from(&user_data_path) {
             Ok(user_data) => {
-                self.music_sheet = user_data.transform_to_db(&self.music_sheet, &self.rhythm.keymap_path);
+                user_data.transform_to_db(&mut self.music_sheet);
                 BlueBirdResponse {
                     code : StateCode::OK,
                     results : vec!["Reload Done".to_string()]
@@ -90,17 +101,26 @@ impl Flute {
                 results : vec!["BUG:".to_string(), "Empty args:".to_string(), "Expect one index".to_string()]
             }
         }
-        match cmd.args[0].parse::<usize>() {
-            Ok(idx) => {
-                let keycode = self.music_sheet.get_value(idx, "keycode");
-                if keycode.is_none() {
-                    eprintln!("BUG: No keycode found on index {}", cmd.args[0]);
+        match string_to_id(cmd.args[0].as_str()) {
+            Ok(id) =>  {
+                let sc = self.music_sheet.retrieve(id, None);
+                if sc.is_none() {
+                    eprintln!("BUG: No keycode found on ID {}", cmd.args[0]);
                     return BlueBirdResponse {
                         code : StateCode::BUG,
                         results : vec!["BUG:".to_string(), "No keycode found on index:".to_string(), cmd.args[0].clone()]
                     }
                 }
-                println!("Execute: {}: {}", idx, self.music_sheet.get_value(idx, "formatted").unwrap() );
+                let sc = sc.unwrap();
+                let keycode = sc.parse_to_keycode(&self.music_sheet.keymap);
+                if keycode.is_none() {
+                    eprintln!("Error: Parse keycode error {}", sc.to_json_string().unwrap_or("Bad shortcut".to_string()));
+                    return BlueBirdResponse {
+                        code : StateCode::BUG,
+                        results : vec!["BUG:".to_string(), "No keycode found on index:".to_string(), cmd.args[0].clone()]
+                    }
+                }
+                println!("Execute: {}: {}", cmd.args[0], sc.format_output(&self.rhythm.shortcut_print_fmt) );
                 if let Err(e) = execute_shortcut_enigo(&keycode.unwrap(), self.rhythm.interval_ms) {
                     eprintln!("Enigo Failure: Fail to execute shortcut: {:?}", e);
                     return BlueBirdResponse {
@@ -108,7 +128,7 @@ impl Flute {
                         results : vec!["Failure:".to_string(), format!("{}", e)]
                     }
                 }
-                let _ = self.music_sheet.hit_num_up(idx);
+                let _ = self.music_sheet.hit_num_up(id);
                 self.update_rank();
                 return BlueBirdResponse {
                     code : StateCode::OK,

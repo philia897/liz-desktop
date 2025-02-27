@@ -19,3 +19,6 @@
 
 # Shortcut key to trigger a specific action
 #trigger_shortcut = "Ctrl+Alt+L"  # Default is "Ctrl+Alt+L"
+
+# The format to show one shortcut
+#shortcut_print_fmt = "<b>#description</b> | #application | #shortcut"

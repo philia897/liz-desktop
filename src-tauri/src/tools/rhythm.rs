@@ -14,6 +14,7 @@ pub struct  Rhythm {
     pub persist_freq_s : u64,  // The interval between two auto-persisting
     pub interval_ms: u64, // interval of each shortcut block. No need to set it normally.
     pub trigger_shortcut: String,
+    pub shortcut_print_fmt: String, // The format to show one shortcut
 }
 
 impl Default for Rhythm {
@@ -24,15 +25,17 @@ impl Default for Rhythm {
         let music_sheet_path: String = format!("{}/music_sheet.lock", liz_path);
         let keymap_path: String = format!("{}/keymap_builtin.json", liz_path);
         let trigger_shortcut: String = "Ctrl+Alt+L".to_string();
+        let shortcut_print_fmt: String = "<b>#description</b> | #application | #shortcut".to_string();
 
         Self {
-            liz_path: liz_path,
-            user_sheets_path: user_sheets_path,
-            music_sheet_path: music_sheet_path,
-            keymap_path: keymap_path,
+            liz_path,
+            user_sheets_path,
+            music_sheet_path,
+            keymap_path,
             persist_freq_s: 3600,
             interval_ms: 100,
-            trigger_shortcut: trigger_shortcut,
+            trigger_shortcut,
+            shortcut_print_fmt,
         }
     }
 }
@@ -65,6 +68,7 @@ impl Rhythm {
             "persist_freq_s".to_string(), self.persist_freq_s.to_string(),
             "interval_ms".to_string(), self.interval_ms.to_string(),
             "trigger_shortcut".to_string(), self.trigger_shortcut.clone(),
+            "shortcut_print_fmt".to_string(), self.shortcut_print_fmt.clone(),
         ]
     }
 }

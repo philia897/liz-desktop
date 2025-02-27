@@ -1,5 +1,6 @@
 use std::env;
 use std::path::{Path, PathBuf};
+use uuid::Uuid;
 
 /// Get the default config dir of Liz
 /// If the environment variable "LIZ_DATA_DIR" set, use its value
@@ -36,4 +37,25 @@ fn get_system_config_folder() -> String {
     // On macOS, it's typically ~/Library/Application Support
     let home_dir = env::var("HOME").expect("Failed to get HOME directory");
     format!("{}/Library/Application Support", home_dir)
+}
+
+
+pub fn generate_id() -> u128 {
+    // Generate a new UUID (Version 4 for random UUID)
+    let uuid = Uuid::new_v4();
+    let id: u128 = uuid.as_u128();
+    id
+}
+
+// Convert String to u128 id
+pub fn string_to_id(s: &str) -> Result<u128, uuid::Error> {
+    let uuid = Uuid::parse_str(s)?;
+    let id: u128 = uuid.as_u128();
+    Ok(id)
+}
+
+// Convert u128 id to String
+pub fn id_to_string(n: u128) -> String {
+    let uuid = Uuid::from_u128(n);
+    uuid.to_string()
 }
