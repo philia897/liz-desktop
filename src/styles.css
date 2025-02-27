@@ -42,6 +42,7 @@ body {
 /* Main app container */
 #app {
   width: 100%;
+  margin: 5px;
   background-color: var(--bg-color);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 8px;

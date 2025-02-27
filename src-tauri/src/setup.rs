@@ -10,10 +10,11 @@ use std::io;
 /// Setup the tray, including its configuration and Menu.
 pub fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     let show_i = MenuItem::with_id(app, "show", "Show", true, None::<&str>)?;
+    let config_i = MenuItem::with_id(app, "config", "Config", true, None::<&str>)?; 
     let persist_i = MenuItem::with_id(app, "persist", "Save", true, None::<&str>)?;
     let reload_i = MenuItem::with_id(app, "reload", "Reload", true, None::<&str>)?;
     let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
-    let menu = Menu::with_items(app, &[&show_i, &persist_i, &reload_i, &quit_i])?;
+    let menu = Menu::with_items(app, &[&show_i, &config_i, &persist_i, &reload_i, &quit_i])?;
 
     // Create and build the tray icon
     let _tray = TrayIconBuilder::new()
@@ -38,6 +39,17 @@ fn handle_menu_events(app: &AppHandle, event: &MenuEvent) {
                 }
             } else {
                 println!("handle_menu_events: Failed to get the app window");
+            }
+        }
+        "config" => {
+            println!("config menu item was clicked");
+            let path = PathBuf::from("config.html");
+            if let Err(e) = tauri::WebviewWindowBuilder::new(app, "config", tauri::WebviewUrl::App(path))
+                    .decorations(false)
+                    .transparent(true)
+                    .center().inner_size(800.0, 600.0).min_inner_size(500.0, 200.0)
+                    .build() {
+                println!("handle_menu_events: Failed to create Config Panel window: {}", e);
             }
         }
         "persist" => {

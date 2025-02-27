@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liz Configuration</title>
+    <link rel="stylesheet" href="src/config/styles.css">
+</head>
+<body>
+    <div id="app">
+        <div data-tauri-drag-region class="topbar">
+            <button id="menu-button">☰</button>
+            <span class="title">Liz Configuration</span>
+            <span id="close-button">✖</span>
+            <div id="dropdown-menu" class="hidden">
+                <div class="menu-item" data-option="commands">Commands</div>
+                <div class="menu-item" data-option="settings">Settings</div>
+            </div>
+        </div>
+        
+        <div id="main-content">
+            <div id="commands-section">
+                <input type="text" id="search-box" placeholder="Search commands...">
+                <div id="table-container">
+                    <table id="commands-table">
+                        <thead>
+                            <tr>
+                                <th>App</th>
+                                <th>Description</th>
+                                <th>Command</th>
+                                <th>Comment</th>
+                                <th>Hit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Table data populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="edit-modal" class="hidden">
+                    <label>App Name:    <input type="text" id="edit-app"></label>
+                    <label>Description: <input type="text" id="edit-desc"></label>
+                    <label>Command:     <input type="text" id="edit-command"></label>
+                    <label>Comment:     <input type="text" id="edit-comment"></label>
+                    <label>Hit Number:  <input type="number" id="edit-hit"></label>
+                    <div id="save-cancel">
+                        <button id="save-edit">Save</button>
+                        <button id="cancel-edit">Cancel</button>
+                    </div>
+            </div>
+            <div id="settings-section" class="hidden">
+                <p>Settings content here...</p>
+            </div>
+        </div>
+
+    </div>
+    
+    <script type="module" src="src/config/script.ts"></script>
+</body>
+</html>
