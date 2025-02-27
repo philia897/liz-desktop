@@ -13,8 +13,8 @@
             <span class="title">Liz Configuration</span>
             <span id="close-button">✖</span>
             <div id="dropdown-menu" class="hidden">
-                <div class="menu-item" data-option="commands">Commands</div>
-                <div class="menu-item" data-option="settings">Settings</div>
+                <div class="menu-item dropdown-menu-item" data-option="commands">Commands</div>
+                <div class="menu-item dropdown-menu-item" data-option="settings">Settings</div>
             </div>
         </div>
         
@@ -28,7 +28,7 @@
                                 <th>App</th>
                                 <th>Description</th>
                                 <th>Command</th>
-                                <th>Comment</th>
+                                <!-- <th>Comment</th> -->
                                 <th>Hit</th>
                             </tr>
                         </thead>
@@ -42,7 +42,7 @@
                     <label>App Name:    <input type="text" id="edit-app"></label>
                     <label>Description: <input type="text" id="edit-desc"></label>
                     <label>Command:     <input type="text" id="edit-command"></label>
-                    <label>Comment:     <input type="text" id="edit-comment"></label>
+                    <label>Comment:     <textarea id="edit-comment" rows="4"></textarea></label>
                     <label>Hit Number:  <input type="number" id="edit-hit"></label>
                     <div id="save-cancel">
                         <button id="save-edit">Save</button>

@@ -81,6 +81,9 @@ body {
     position: absolute;
     top: 40px;
     left: 10px;
+    z-index: 999;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
     background: var(--list-item-bg);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     display: flex;
@@ -91,6 +94,8 @@ body {
     position: absolute;
     top: 40px;
     left: 10px;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
     background: var(--list-item-bg);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     display: flex;
@@ -98,21 +103,12 @@ body {
 }
 
 .menu-item {
+    border-radius: 8px;
     padding: 8px 12px;
     cursor: pointer;
 }
 
 .menu-item:hover {
-    background: var(--list-item-hover-bg);
-    color: var(--list-item-hover-color);
-}
-
-.context-menu-item {
-    padding: 8px 12px;
-    cursor: pointer;
-}
-
-.context-menu-item:hover {
     background: var(--list-item-hover-bg);
     color: var(--list-item-hover-color);
 }
@@ -151,8 +147,7 @@ border-color: var(--highlight-color);
 /* Table Container: Fixed height with scrolling */
 #table-container {
     overflow-y: auto;
-    /* overflow-y: auto;
-    overflow-x: none; */
+    overflow-x: auto;
     border: 1px solid var(--input-border);
     border-radius: 8px;
     flex-grow: 1;
@@ -162,6 +157,8 @@ border-color: var(--highlight-color);
 /* Commands Table Styling */
 #commands-table {
     width: 100%;
+    table-layout: fixed;
+    word-wrap: break-word;
     border-collapse: collapse;
     background: var(--list-item-bg);
 }
@@ -193,10 +190,48 @@ border-color: var(--highlight-color);
 
 /* Table Cells */
 #commands-table td {
-    padding: 10px;
-    font-size: 14px;
+    padding: 8px;
+    font-size: 12px;
+    text-align: left;
+    white-space: nowrap; /* Prevent wrapping of text */
+    overflow: hidden; /* Hide overflow content */
+    text-overflow: ellipsis; /* Show ellipsis when text overflows */
     color: var(--text-color);
 }
+
+/* Target different columns using nth-child */
+
+/* For the first column (App) */
+#commands-table td:nth-child(1),
+#commands-table th:nth-child(1) {
+    width: 120px; /* Adjust max-width for the first column */
+}
+
+/* For the second column (Description) */
+#commands-table td:nth-child(2),
+#commands-table th:nth-child(2) {
+    max-width: none; /* Adjust max-width for the second column */
+}
+
+/* For the third column (Command) */
+#commands-table td:nth-child(3),
+#commands-table th:nth-child(3) {
+    max-width: 120px; /* Adjust max-width for the third column */
+}
+
+/* For the fifth column (Hit) */
+#commands-table td:nth-child(4),
+#commands-table th:nth-child(4) {
+    width: 50px; /* Adjust max-width for the fifth column */
+}
+
+/* Add a tooltip effect when the user hovers over a cell */
+#commands-table td:hover {
+    overflow: auto; /* Allow overflow on hover */
+    white-space: normal; /* Allow wrapping of text */
+    text-overflow: unset;
+}
+
 
 /* Row Hover Effect */
 #commands-table tbody tr:hover {
@@ -225,6 +260,8 @@ border-color: var(--highlight-color);
     position: fixed;
     top: 50%;
     left: 50%;
+    overflow: auto;
+    max-height: 100vh;
     transform: translate(-50%, -50%);
     background: var(--bg-color);
     padding: 20px;
@@ -256,6 +293,22 @@ border-color: var(--highlight-color);
 }
 
 #edit-modal input:focus {
+    outline: none;
+    border-color: var(--highlight-color);
+    box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
+}
+
+#edit-modal textarea {
+    margin-top: 4px;
+    padding: 6px 10px;
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    background: var(--input-bg);
+    color: var(--text-color);
+    font-size: 14px;
+}
+
+#edit-modal textarea:focus {
     outline: none;
     border-color: var(--highlight-color);
     box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
