@@ -1,24 +1,23 @@
+use serde::de;
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
+use std::error::Error;
 use std::fs::{self, File, OpenOptions};
 use std::io::Read;
-use std::error::Error;
-use serde::{Deserialize, Serialize};
-use serde::de;
 
 use super::utils::{generate_id, id_to_string, string_to_id};
-
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(default)]
 pub struct Shortcut {
     #[serde(serialize_with = "serialize_id", deserialize_with = "deserialize_id")]
-    pub id: u128,  // UUID
+    pub id: u128, // UUID
 
-    pub hit_number: i64,  // How many time the shortcut is hit
-    pub shortcut: String,   // Shortcut string
-    pub application: String,   // Application using this shortcut
-    pub description: String,   // Shortcut description, shall not be too long
-    pub comment: String,   // Extra info or explanation for the shortcut
+    pub hit_number: i64,     // How many time the shortcut is hit
+    pub shortcut: String,    // Shortcut string
+    pub application: String, // Application using this shortcut
+    pub description: String, // Shortcut description, shall not be too long
+    pub comment: String,     // Extra info or explanation for the shortcut
 }
 
 fn serialize_id<S>(id: &u128, serializer: S) -> Result<S::Ok, S::Error>
@@ -35,7 +34,7 @@ where
 {
     // Deserialize `id` from a string
     let s: String = String::deserialize(deserializer)?;
-    
+
     string_to_id(&s).map_err(de::Error::custom)
 }
 
@@ -76,7 +75,7 @@ impl Shortcut {
 
     pub fn format_output(&self, fmt: &str) -> String {
         let mut formatted_str: String = fmt.to_string();
-        
+
         // Replace all possible attributes
         formatted_str = formatted_str.replace("#id", &self.id.to_string());
         formatted_str = formatted_str.replace("#hit_number", &self.hit_number.to_string());
@@ -89,8 +88,11 @@ impl Shortcut {
     }
 
     /// Parse the shortcut string to keycodes that can be used for execution
-    pub fn parse_to_keycode(&self, key_event_codes: &HashMap<String, String>) -> Result<String, Box<dyn Error>> {
-        let rst: String= convert_shortcut_to_key_presses(&self.shortcut, key_event_codes);
+    pub fn parse_to_keycode(
+        &self,
+        key_event_codes: &HashMap<String, String>,
+    ) -> Result<String, Box<dyn Error>> {
+        let rst: String = convert_shortcut_to_key_presses(&self.shortcut, key_event_codes);
         Ok(rst)
     }
 
@@ -119,7 +121,6 @@ impl Shortcut {
 
         unique_shortcuts
     }
-
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -130,7 +131,10 @@ struct MusicSheetDBTable {
 
 impl MusicSheetDBTable {
     pub fn new() -> Self {
-        Self { deleted: Vec::new(), data: Vec::new() }
+        Self {
+            deleted: Vec::new(),
+            data: Vec::new(),
+        }
     }
 }
 
@@ -142,7 +146,7 @@ pub struct MusicSheetDB {
 
 impl MusicSheetDB {
     /**
-     * Add a list of Shortcuts into the data. 
+     * Add a list of Shortcuts into the data.
      * safe_check (default true) to remove duplicate shortcuts, which means the content or the id is the same.
      */
     pub fn add_shortcuts(&mut self, shortcuts: Vec<Shortcut>, safe_check: Option<bool>) {
@@ -160,7 +164,7 @@ impl MusicSheetDB {
 
     /// Retrieves one shortcut by its id from either "data" or "deleted" list, default mode to be "data"
     pub fn retrieve(&self, id: u128, mode: Option<&str>) -> Option<&Shortcut> {
-        let mode = mode.unwrap_or("data");  // Default to "data" if mode is None
+        let mode = mode.unwrap_or("data"); // Default to "data" if mode is None
         match mode {
             "data" => self.t.data.iter().find(|&shortcut| shortcut.id == id),
             "deleted" => self.t.deleted.iter().find(|&shortcut| shortcut.id == id),
@@ -207,7 +211,7 @@ impl MusicSheetDB {
         for new_sc in new_shortcuts {
             if let Some(shortcut) = self.t.data.iter_mut().find(|s| s.id == new_sc.id) {
                 modified_shortcuts.push(shortcut.clone());
-                // *shortcut = new_sc;  // replace the entire object 
+                // *shortcut = new_sc;  // replace the entire object
                 shortcut.update(&new_sc);
             } else {
                 unmatched.push(new_sc);
@@ -217,27 +221,34 @@ impl MusicSheetDB {
 
         unmatched
     }
-
 }
-
 
 impl MusicSheetDB {
     /// Initialize an empty table
     pub fn new() -> Self {
-        Self { t: MusicSheetDBTable::new(), keymap: HashMap::new() }
+        Self {
+            t: MusicSheetDBTable::new(),
+            keymap: HashMap::new(),
+        }
     }
 
     /// Import from JSON file
     pub fn import_from_json(file_path: &str) -> Result<Self, Box<dyn Error>> {
         let file = File::open(file_path)?;
         let t: MusicSheetDBTable = serde_json::from_reader(file)?;
-        Ok(Self{t, keymap: HashMap::new()})
+        Ok(Self {
+            t,
+            keymap: HashMap::new(),
+        })
     }
 
     /// Export to JSON file
     pub fn export_to_json(&self, file_path: &str) -> Result<(), Box<dyn Error>> {
         let _ = std::fs::remove_file(file_path);
-        let file = OpenOptions::new().write(true).create(true).open(file_path)?;
+        let file = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(file_path)?;
         serde_json::to_writer(file, &self.t)?;
         Ok(())
     }
@@ -251,14 +262,14 @@ impl MusicSheetDB {
                 return; // Return an empty map in case of error
             }
         };
-    
+
         // Read the contents of the file
         let mut contents = String::new();
         if let Err(e) = file.read_to_string(&mut contents) {
             eprint!("Error reading keymap file: {}\n", e);
             return; // Return an empty map in case of error
         }
-    
+
         // Parse the contents as JSON
         match serde_json::from_str(&contents) {
             Ok(key_event_codes) => key_event_codes,
@@ -269,7 +280,7 @@ impl MusicSheetDB {
     }
 
     /// Function to increase hit_number for a given row index
-    pub fn hit_num_up(&mut self, id: u128) -> Result<(), String> { 
+    pub fn hit_num_up(&mut self, id: u128) -> Result<(), String> {
         if let Some(sc) = self.t.data.iter_mut().find(|shortcut| shortcut.id == id) {
             sc.hit_number += 1; // Increment the hit_number
             Ok(())
@@ -286,7 +297,7 @@ impl MusicSheetDB {
             "hit_number" => Box::new(|a, b| a.hit_number.cmp(&b.hit_number)),
             "application" => Box::new(|a, b| a.application.cmp(&b.application)),
             "description" => Box::new(|a, b| a.description.cmp(&b.description)),
-            _ => Box::new(|_, _| std::cmp::Ordering::Equal),  // Handle unknown column names
+            _ => Box::new(|_, _| std::cmp::Ordering::Equal), // Handle unknown column names
         };
 
         // Now sort the data using the pre-selected comparator
@@ -299,7 +310,6 @@ impl MusicSheetDB {
             }
         });
     }
-
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -323,14 +333,13 @@ impl UserSheet {
         } else {
             Err(format!("{} is neither a file nor a directory.", path).into())
         }
-
     }
 
     /// Import from JSON file
     fn import_from_json(file_path: &str) -> Result<Self, Box<dyn Error>> {
         let file = File::open(file_path)?;
         let data: Vec<Shortcut> = serde_json::from_reader(file)?;
-        Ok(Self{data: data})
+        Ok(Self { data: data })
     }
 
     /// Import all JSON files from a directory
@@ -345,10 +354,10 @@ impl UserSheet {
             // Check if the entry is a file and ends with .json
             if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("json") {
                 let file = File::open(&path)?;
-                
+
                 // Deserialize the JSON content into UserDataRow
                 let data: Vec<Shortcut> = serde_json::from_reader(file)?;
-                
+
                 // Extend the result vector with the new data
                 all_data.extend(data);
             }
@@ -357,10 +366,9 @@ impl UserSheet {
         Ok(Self { data: all_data })
     }
 
-    pub fn transform_to_db(&self, db : &mut MusicSheetDB) {
+    pub fn transform_to_db(&self, db: &mut MusicSheetDB) {
         db.add_shortcuts(self.data.clone(), None);
     }
-
 }
 
 /**
@@ -370,19 +378,23 @@ impl UserSheet {
  * => 126.1 104.1 104.0 126.0 15.1 15.0 [STR]+ 123!@#[STR] 15.1 15.0 [STR]+ ABC[STR]
  * Where keycode of meta is 126, pageup (104), tab (15)
  * type 123!@ means directly type these characters "123!@".
- * Note: "ctrl + c" will be consider press "ctrl", then "+" then "c", as they are splited by space. 
+ * Note: "ctrl + c" will be consider press "ctrl", then "+" then "c", as they are splited by space.
  */
-fn convert_shortcut_to_key_presses(shortcut: &str, key_event_codes: &HashMap<String, String>) -> String {
+fn convert_shortcut_to_key_presses(
+    shortcut: &str,
+    key_event_codes: &HashMap<String, String>,
+) -> String {
     let mut result = Vec::new();
 
     // Split by marker [STR] to different blocks
     let ss: Vec<&str> = shortcut.split("[STR]").collect();
-    
+
     for s in ss {
         if s.is_empty() {
             continue;
         }
-        if s.starts_with("+") {  // Typing the string
+        if s.starts_with("+") {
+            // Typing the string
             let type_str: &str = &s[2..];
             result.push(format!("[STR]+ {}[STR]", type_str.trim()));
         } else {
@@ -393,9 +405,11 @@ fn convert_shortcut_to_key_presses(shortcut: &str, key_event_codes: &HashMap<Str
                 if part.is_empty() {
                     continue;
                 }
-                if part.contains('+') && part != "+" {   // Execute shortcut like ctrl+c, ctrl+v
+                if part.contains('+') && part != "+" {
+                    // Execute shortcut like ctrl+c, ctrl+v
                     let keys: Vec<&str> = part.split('+').collect();
-                    for key in &keys {     // Press
+                    for key in &keys {
+                        // Press
                         let key: String = key.trim().to_lowercase();
                         if let Some(event_code) = key_event_codes.get(&key) {
                             result.push(format!("{}.1", event_code));
@@ -403,7 +417,8 @@ fn convert_shortcut_to_key_presses(shortcut: &str, key_event_codes: &HashMap<Str
                             result.push(format!("{}.1", key));
                         }
                     }
-                    for key in keys.iter().rev() {   // Release
+                    for key in keys.iter().rev() {
+                        // Release
                         let key: String = key.trim().to_lowercase();
                         if let Some(event_code) = key_event_codes.get(&key) {
                             result.push(format!("{}.0", event_code));
@@ -411,16 +426,20 @@ fn convert_shortcut_to_key_presses(shortcut: &str, key_event_codes: &HashMap<Str
                             result.push(format!("{}.0", key));
                         }
                     }
-                } else {     // Not a shortcut, either one single key or a string to type
+                } else {
+                    // Not a shortcut, either one single key or a string to type
                     let key = part.trim().to_lowercase();
-                    if let Some(event_code) = key_event_codes.get(&key) {  // Press one key
+                    if let Some(event_code) = key_event_codes.get(&key) {
+                        // Press one key
                         result.push(format!("{}.1", event_code));
                         result.push(format!("{}.0", event_code));
-                    } else if key.len() == 1 {              // Press one character
+                    } else if key.len() == 1 {
+                        // Press one character
                         let k = part.trim();
                         result.push(format!("{}.1", k));
                         result.push(format!("{}.0", k));
-                    } else {                  //  Type the string
+                    } else {
+                        //  Type the string
                         result.push(format!("[STR]+ {}[STR]", part.trim()));
                     }
                 }
@@ -430,8 +449,6 @@ fn convert_shortcut_to_key_presses(shortcut: &str, key_event_codes: &HashMap<Str
 
     result.join(" ")
 }
-
-
 
 //  TEST
 
@@ -460,7 +477,10 @@ mod tests {
 
         // Test 3: Test with more complex shortcuts (e.g., multiple key combinations)
         let shortcut = "meta+pageup tab 123!@# meta+tab";
-        let expected = Some("126.1 104.1 104.0 126.0 15.1 15.0 [STR]+ 123!@#[STR] 126.1 15.1 15.0 126.0".to_string());
+        let expected = Some(
+            "126.1 104.1 104.0 126.0 15.1 15.0 [STR]+ 123!@#[STR] 126.1 15.1 15.0 126.0"
+                .to_string(),
+        );
         let result = convert_shortcut_to_key_presses(shortcut, &key_event_codes);
         assert_eq!(Some(result), expected);
 
@@ -490,9 +510,11 @@ mod tests {
 
         // Test 8: Test [STR]
         let shortcut = "meta+pageup tab [STR]+ 123! @# [STR] meta+tab";
-        let expected = Some("126.1 104.1 104.0 126.0 15.1 15.0 [STR]+ 123! @#[STR] 126.1 15.1 15.0 126.0".to_string());
+        let expected = Some(
+            "126.1 104.1 104.0 126.0 15.1 15.0 [STR]+ 123! @#[STR] 126.1 15.1 15.0 126.0"
+                .to_string(),
+        );
         let result = convert_shortcut_to_key_presses(shortcut, &key_event_codes);
         assert_eq!(Some(result), expected);
-
     }
 }

@@ -1,16 +1,20 @@
-
 use tauri::{
-    menu::{Menu, MenuEvent, MenuItem}, tray::TrayIconBuilder, AppHandle, Emitter, Manager
+    menu::{Menu, MenuEvent, MenuItem},
+    tray::TrayIconBuilder,
+    AppHandle, Emitter, Manager,
 };
 
-use crate::{flute::{Flute, LizCommand}, tools::{db::MusicSheetDB, rhythm::Rhythm}};
-use std::{fs::DirBuilder, path::PathBuf, sync::Mutex};
+use crate::{
+    flute::{Flute, LizCommand},
+    tools::{db::MusicSheetDB, rhythm::Rhythm},
+};
 use std::io;
+use std::{fs::DirBuilder, path::PathBuf, sync::Mutex};
 
 /// Setup the tray, including its configuration and Menu.
 pub fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     let show_i = MenuItem::with_id(app, "show", "Show", true, None::<&str>)?;
-    let config_i = MenuItem::with_id(app, "config", "Config", true, None::<&str>)?; 
+    let config_i = MenuItem::with_id(app, "config", "Config", true, None::<&str>)?;
     let persist_i = MenuItem::with_id(app, "persist", "Save", true, None::<&str>)?;
     let reload_i = MenuItem::with_id(app, "reload", "Reload", true, None::<&str>)?;
     let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
@@ -44,12 +48,19 @@ fn handle_menu_events(app: &AppHandle, event: &MenuEvent) {
         "config" => {
             println!("config menu item was clicked");
             let path = PathBuf::from("config.html");
-            if let Err(e) = tauri::WebviewWindowBuilder::new(app, "config", tauri::WebviewUrl::App(path))
+            if let Err(e) =
+                tauri::WebviewWindowBuilder::new(app, "config", tauri::WebviewUrl::App(path))
                     .decorations(false)
                     .transparent(true)
-                    .center().inner_size(800.0, 600.0).min_inner_size(500.0, 200.0)
-                    .build() {
-                println!("handle_menu_events: Failed to create Config Panel window: {}", e);
+                    .center()
+                    .inner_size(800.0, 600.0)
+                    .min_inner_size(500.0, 200.0)
+                    .build()
+            {
+                println!(
+                    "handle_menu_events: Failed to create Config Panel window: {}",
+                    e
+                );
             }
         }
         "persist" => {
@@ -59,10 +70,10 @@ fn handle_menu_events(app: &AppHandle, event: &MenuEvent) {
                     if let Err(e) = flute.persist() {
                         eprintln!("Failed to persist: {}", e);
                     }
-                },
+                }
                 Err(e) => {
                     eprintln!("Failed to lock Flute because: {}", e);
-                },
+                }
             }
         }
         "reload" => {
@@ -71,13 +82,13 @@ fn handle_menu_events(app: &AppHandle, event: &MenuEvent) {
                 Ok(mut flute) => {
                     let response = flute.play(&LizCommand {
                         action: "reload".to_string(),
-                        args: vec![]
+                        args: vec![],
                     });
                     println!("Reload response: {:?}", response);
-                },
+                }
                 Err(e) => {
                     eprintln!("Failed to lock Flute because: {}", e);
-                },
+                }
             }
             let _ = app.emit("fetch-again", "");
         }
@@ -92,7 +103,7 @@ fn handle_menu_events(app: &AppHandle, event: &MenuEvent) {
 }
 
 /// Create Liz folder if not exist.
-fn create_liz_folder(liz_path:&str) -> io::Result<()> {
+fn create_liz_folder(liz_path: &str) -> io::Result<()> {
     let liz_folder = PathBuf::from(liz_path);
 
     if !liz_folder.exists() {
@@ -106,7 +117,6 @@ fn create_liz_folder(liz_path:&str) -> io::Result<()> {
     Ok(())
 }
 
-
 pub fn create_flute(rhythm_path: Option<String>) -> Result<Flute, Box<dyn std::error::Error>> {
     let rhythm: Rhythm = Rhythm::read_rhythm(rhythm_path)?;
 
@@ -117,46 +127,49 @@ pub fn create_flute(rhythm_path: Option<String>) -> Result<Flute, Box<dyn std::e
 
     let music_sheet_path = &rhythm.music_sheet_path;
     let mut flute: Flute = Flute {
-        music_sheet : MusicSheetDB::import_from_json(music_sheet_path)
-                .unwrap_or_else(|_| {
-                    eprintln!("Failed to load music sheet from {}", music_sheet_path);
-                    MusicSheetDB::new()  // Return a default instance if loading fails
-                }),
-        rhythm : rhythm
+        music_sheet: MusicSheetDB::import_from_json(music_sheet_path).unwrap_or_else(|_| {
+            eprintln!("Failed to load music sheet from {}", music_sheet_path);
+            MusicSheetDB::new() // Return a default instance if loading fails
+        }),
+        rhythm: rhythm,
     };
     flute.calibrate();
     flute.music_sheet.read_keymap(&flute.rhythm.keymap_path);
     Ok(flute)
 }
 
-pub fn register_trigger_shortcut(app: &tauri::App, trigger_sc: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn register_trigger_shortcut(
+    app: &tauri::App,
+    trigger_sc: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
     use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, ShortcutState};
 
     let trigger_sc: Shortcut = trigger_sc.parse()?;
     app.handle().plugin(
-        tauri_plugin_global_shortcut::Builder::new().with_handler(move | app, shortcut, event| {
-            println!("{:?}", shortcut);
-            if shortcut == &trigger_sc {
-                match event.state() {
-                  ShortcutState::Pressed => {
-                    if let Some(win) = app.get_webview_window("main") {
-                        if let Err(e) = win.show() {
-                            println!("Failed to show the app, err: {}", e);
+        tauri_plugin_global_shortcut::Builder::new()
+            .with_handler(move |app, shortcut, event| {
+                println!("{:?}", shortcut);
+                if shortcut == &trigger_sc {
+                    match event.state() {
+                        ShortcutState::Pressed => {
+                            if let Some(win) = app.get_webview_window("main") {
+                                if let Err(e) = win.show() {
+                                    println!("Failed to show the app, err: {}", e);
+                                }
+                                if let Err(e) = win.set_focus() {
+                                    println!("Failed to focus the app, err: {}", e);
+                                }
+                            } else {
+                                println!("handle_menu_events: Failed to get the app window");
+                            }
                         }
-                        if let Err(e) = win.set_focus() {
-                            println!("Failed to focus the app, err: {}", e);
-                        }
-                    } else {
-                        println!("handle_menu_events: Failed to get the app window");
+                        ShortcutState::Released => {}
                     }
-                  }
-                  ShortcutState::Released => {}
+                } else {
+                    eprintln!("Wrong shortcut: {}", shortcut);
                 }
-            } else {
-                eprintln!("Wrong shortcut: {}", shortcut);
-            }
-        })
-        .build(),
+            })
+            .build(),
     )?;
 
     app.global_shortcut().register(trigger_sc)?;

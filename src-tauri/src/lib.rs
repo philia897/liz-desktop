@@ -1,13 +1,13 @@
 use std::{process::exit, sync::Mutex};
 
+use clap::Parser;
 use setup::create_flute;
 use tauri::{AppHandle, Emitter, Manager, RunEvent};
-use clap::Parser;
 
 mod flute;
 mod setup;
 mod tools;
-use flute::{BlueBirdResponse, LizCommand, StateCode, Flute};
+use flute::{BlueBirdResponse, Flute, LizCommand, StateCode};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -19,16 +19,14 @@ struct Args {
 
 fn execute_cmd(cmd: LizCommand, app: &AppHandle) -> BlueBirdResponse {
     match app.state::<Mutex<Flute>>().lock() {
-        Ok(mut flute) => {
-            flute.play(&cmd)
-        },
+        Ok(mut flute) => flute.play(&cmd),
         Err(e) => {
             eprintln!("Failed to lock Flute because: {}", e);
             BlueBirdResponse {
                 code: StateCode::BUG,
-                results: vec!["Failed to lock Flute".to_string(), format!("{}", e)]
+                results: vec!["Failed to lock Flute".to_string(), format!("{}", e)],
             }
-        },
+        }
     }
 }
 
@@ -40,7 +38,7 @@ fn send_command(cmd: LizCommand, app: AppHandle) -> BlueBirdResponse {
             let _ = app.emit("fetch-again", "");
             resp
         }
-        _ => {execute_cmd(cmd, &app)}
+        _ => execute_cmd(cmd, &app),
     }
 }
 
@@ -54,10 +52,10 @@ fn cleanup(app: &AppHandle) {
             } else {
                 println!("Music sheet saved successfully.");
             }
-        },
+        }
         Err(e) => {
             eprintln!("Failed to lock Flute because: {}", e);
-        },
+        }
     }
 }
 
@@ -67,6 +65,7 @@ pub fn run() {
     let args = Args::parse();
 
     let mut builder = tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         // .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_opener::init());
 
@@ -91,7 +90,7 @@ pub fn run() {
                 Ok(flute) => {
                     trigger_shortcut = flute.rhythm.trigger_shortcut.clone();
                     let _ = app.manage(Mutex::new(flute));
-                },
+                }
                 Err(e) => {
                     eprintln!("Failed to get flute: {}", e);
                     exit(1);
@@ -107,7 +106,7 @@ pub fn run() {
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
         .run(|app_handle, e| match e {
-            RunEvent::ExitRequested { ..} => {
+            RunEvent::ExitRequested { .. } => {
                 cleanup(app_handle);
             }
             _ => {}

@@ -1,11 +1,11 @@
+use std::error::Error;
 use std::thread::sleep;
 use std::time::Duration;
-use std::error::Error;
 
 use enigo::{
-    Direction::{Press, Release}, Enigo, InputError, Key, Keyboard, Settings
+    Direction::{Press, Release},
+    Enigo, InputError, Key, Keyboard, Settings,
 };
-
 
 /// Converts a key name (e.g., "ctrl", "u", "enter") to an enigo::Key.
 /// Single characters are mapped to `Key::Unicode`.
@@ -27,15 +27,15 @@ fn string_to_key(s: &str) -> Option<Key> {
         "left" => Some(Key::LeftArrow),
         "right" => Some(Key::RightArrow),
         // Function keys
-        "f1"  => Some(Key::F1),
-        "f2"  => Some(Key::F2),
-        "f3"  => Some(Key::F3),
-        "f4"  => Some(Key::F4),
-        "f5"  => Some(Key::F5),
-        "f6"  => Some(Key::F6),
-        "f7"  => Some(Key::F7),
-        "f8"  => Some(Key::F8),
-        "f9"  => Some(Key::F9),
+        "f1" => Some(Key::F1),
+        "f2" => Some(Key::F2),
+        "f3" => Some(Key::F3),
+        "f4" => Some(Key::F4),
+        "f5" => Some(Key::F5),
+        "f6" => Some(Key::F6),
+        "f7" => Some(Key::F7),
+        "f8" => Some(Key::F8),
+        "f9" => Some(Key::F9),
         "f10" => Some(Key::F10),
         "f11" => Some(Key::F11),
         "f12" => Some(Key::F12),
@@ -56,7 +56,6 @@ fn string_to_key(s: &str) -> Option<Key> {
     }
 }
 
-
 /// Simulate a sequence of keyboard events using Enigo.
 /// The sequence format is space-separated tokens like "ctrl.1 u.1 u.0 ctrl.0"
 /// where "1" stands for Press and "0" stands for Release.
@@ -70,8 +69,8 @@ fn simulate_key_events_enigo(enigo: &mut Enigo, sequence: &str) -> Result<(), Bo
             if event_code.is_empty() {
                 return Err(format!("Invalid token (missing event code): '{}'", token).into());
             }
-            let key = string_to_key(key_str)
-                .ok_or_else(|| format!("Unknown key: '{}'", key_str))?;
+            let key =
+                string_to_key(key_str).ok_or_else(|| format!("Unknown key: '{}'", key_str))?;
             let direction = match event_code {
                 "1" => Press,
                 "0" => Release,

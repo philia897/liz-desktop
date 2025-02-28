@@ -14,9 +14,12 @@ pub fn get_app_config_folder() -> PathBuf {
         Ok(s) => Path::new(&s).to_path_buf(),
         Err(_e) => {
             let path: PathBuf = Path::new(&get_system_config_folder()).join("liz");
-            eprintln!("Env variable LIZ_DATA_DIR not set, use default instead: {}", path.to_str().expect("Failed to convert path to str"));
+            eprintln!(
+                "Env variable LIZ_DATA_DIR not set, use default instead: {}",
+                path.to_str().expect("Failed to convert path to str")
+            );
             path
-        },
+        }
     }
 }
 
@@ -40,7 +43,6 @@ fn get_system_config_folder() -> String {
     format!("{}/Library/Application Support", home_dir)
 }
 
-
 pub fn generate_id() -> u128 {
     // Generate a new UUID (Version 4 for random UUID)
     let uuid = Uuid::new_v4();
@@ -51,15 +53,13 @@ pub fn generate_id() -> u128 {
 // Convert String to u128 id
 pub fn string_to_id(s: &str) -> Result<u128, Box<dyn Error>> {
     let id: u128 = match Uuid::parse_str(s) {
-        Ok(uuid) => {
-            uuid.as_u128()
-        },
+        Ok(uuid) => uuid.as_u128(),
         Err(e) => {
             eprintln!("Failed to parse string using UUID lib, error: {}\nTry to use str::parse instead...", e);
             s.parse::<u128>()?
-        },
-    } ;
-    
+        }
+    };
+
     Ok(id)
 }
 
@@ -69,8 +69,6 @@ pub fn id_to_string(n: u128) -> String {
     uuid.to_string()
 }
 
-
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -78,7 +76,7 @@ mod tests {
     #[test]
     fn test_id_string_converting() {
         let id: u128 = generate_id();
-        
+
         let id_str = id_to_string(id);
         println!("id_to_string: {} -> {}", id, id_str);
 
@@ -99,7 +97,5 @@ mod tests {
         println!("string_to_id 3: {} -> {}", id_str, id2);
 
         assert_eq!(id, id2)
-
     }
-
 }

@@ -1,5 +1,6 @@
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { invoke } from '@tauri-apps/api/core';
+import { confirm, message } from '@tauri-apps/plugin-dialog'
 
 enum StateCode {
     OK = "OK",
@@ -67,7 +68,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const appWindow = getCurrentWindow();
 
-    
+
 
     // Fetch shortcuts from Rust via Tauri command
     async function fetchShortcuts() {
@@ -75,7 +76,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             cmd: { action: 'get_shortcut_details', args: [] },
         });
         if (response.code !== StateCode.OK) {
-            alert(`Failed to retrieve shortcuts because ${response.results.join("; ")}`)
+            await message(`Failed to retrieve shortcuts because ${response.results.join("; ")}`, {
+                title: 'Liz Error', kind: 'error'
+            });
             return
         }
         let shortcuts: Shortcut[] = [];
@@ -89,20 +92,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             row.id = cmd.id
             row.innerHTML = `<td>${cmd.application}</td><td title="${cmd.comment}">${cmd.description}</td><td>${cmd.shortcut}</td><td>${cmd.hit_number}</td>`;
             tableBody.appendChild(row);
-    });
+        });
     }
 
     fetchShortcuts();
 
 
-    // Add event listener for the 'keydown' event to check for Enter key
-    if (searchBox instanceof HTMLInputElement && tableBody instanceof HTMLTableSectionElement)
+    // Check instance to avoid possible error of ts
+    if (searchBox instanceof HTMLInputElement && tableBody instanceof HTMLTableSectionElement) {
+        // Add event listener for the 'keydown' event to check for Enter key
         searchBox.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {  // Check if the Enter key was pressed
+            if (event.key === 'Enter') {
                 event.preventDefault();  // Prevent form submission (if inside a form)
+                
+                // Clear selected rows
+                selectedRows.forEach((r) => r.classList.remove("selected"));
+                selectedRows = [];
+                
                 searchTable(searchBox, tableBody);  // Trigger search when Enter is pressed
             }
         });
+    }
 
     // Menu Toggle
     menuButton.addEventListener("click", (event) => {
@@ -194,7 +204,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         const deleteOption = document.createElement("div");
         deleteOption.textContent = "Delete Selected";
         deleteOption.classList.add("menu-item");
-        deleteOption.addEventListener("click", async () => deleteSelectedRows());
+        deleteOption.addEventListener("click", async () => {
+            const confirmation = await confirm(
+                `Are you sure you want to delete the selected ${selectedRows.length} rows?`,
+                { title: 'Tauri', kind: 'warning' }
+              );
+            if (confirmation) {
+                await deleteSelectedRows();
+            }
+        });
 
         const createOption = document.createElement("div");
         createOption.textContent = "New Item";
@@ -259,7 +277,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 cmd: { action: 'delete_shortcuts', args: idList },
             });
             if (response.code !== StateCode.OK) {
-                alert(`Failed to delete shortcuts because ${response.results.join("; ")}`)
+                await message(`Failed to delete shortcuts because ${response.results.join("; ")}`, {
+                    title: 'Liz Error', kind: 'error'
+                });
                 return
             }
         }
@@ -275,10 +295,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const comment = (document.getElementById("edit-comment") as HTMLInputElement).value;
         const hit_str = (document.getElementById("edit-hit") as HTMLInputElement).value;
         const hit = parseInt(hit_str, 10);
-        
+
         if (isCreatingNewCommand) {
             // Handle "Create New Command"
-            
+
             const newRow = document.createElement("tr");
             newRow.innerHTML = `
                 <td>${app}</td>
@@ -292,7 +312,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 cmd: { action: 'new_id', args: [] },
             });
             if (response.code !== StateCode.OK) {
-                alert(`Failed to get ID because ${response.results.join("; ")}`)
+                await message(`Failed to get ID because ${response.results.join("; ")}`, {
+                    title: 'Liz Error', kind: 'error'
+                });
                 return
             }
             let new_id: string = response.results[0];
@@ -313,7 +335,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     cmd: { action: 'create_shortcuts', args: [JSON.stringify(sc)] },
                 });
                 if (response.code !== StateCode.OK) {
-                    alert(`Failed to create shortcut because ${response.results.join("; ")}`)
+                    await message(`Failed to create shortcut because ${response.results.join("; ")}`, {
+                        title: 'Liz Error', kind: 'error'
+                    });
                     return
                 }
             }
@@ -354,7 +378,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     cmd: { action: 'update_shortcuts', args: [JSON.stringify(sc)] },
                 });
                 if (response.code !== StateCode.OK) {
-                    alert(`Failed to update shortcut ${response.results.join("; ")}`)
+                    await message(`Failed to update shortcut ${response.results.join("; ")}`, {
+                        title: 'Liz Error', kind: 'error'
+                    });
                     return
                 }
             }
