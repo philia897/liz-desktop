@@ -1,9 +1,32 @@
 import { getCurrentWindow } from "@tauri-apps/api/window"
+import { invoke } from '@tauri-apps/api/core';
+
+enum StateCode {
+    OK = "OK",
+    FAIL = "FAIL",
+    BUG = "BUG",
+}
+
+
+// Class for BlueBirdResponse
+type BlueBirdResponse = {
+    code: StateCode;
+    results: string[];
+}
+
+type Shortcut = {
+    id: string;         // Use string for large numbers (u128 in Rust)
+    hit_number: number; // Can be a number since hit_number is an i64 in Rust
+    shortcut: string;
+    application: string;
+    description: string;
+    comment: string;
+};
 
 function searchTable(searchBox: HTMLInputElement, tableBody: HTMLTableSectionElement) {
     const searchText = searchBox.value.toLowerCase();  // Get the search input and convert it to lowercase
     const rows = tableBody.getElementsByTagName('tr');  // Get all rows in the table body
-    
+
     // Loop through each row
     for (let row of rows) {
         const cells = row.getElementsByTagName('td');
@@ -12,7 +35,7 @@ function searchTable(searchBox: HTMLInputElement, tableBody: HTMLTableSectionEle
         // Loop through each cell in the row
         for (let cell of cells) {
             const cellText = cell.textContent || cell.innerText;
-            
+
             // If the search text is found in any cell, mark the row as a match
             if (cellText.toLowerCase().includes(searchText)) {
                 matchFound = true;
@@ -44,20 +67,33 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const appWindow = getCurrentWindow();
 
-    // Sample Data
-    const commands = [
-        { app: "App1 cccccccccccccccc ccccccccccccccccc", desc: "Test Desc aaaaaaaaaaaaaaa aaaaaaaaaaaaaaaaaa", command: "Run", comment: "CMD Desc\n aaaaaaaaaaaaaaa aaaaaaaaaaaaaaaaaa", hit: 5 },
-        { app: "App2", desc: "Another Desc", command: "Start", comment: "Check", hit: 10 },
-        { app: "App3", desc: "Test Desc", command: "Run", comment: "None", hit: 5 },
-        { app: "App4", desc: "Test Desc", command: "Run", comment: "None", hit: 5 },
-    ];
+    
 
-    // Populate Table
-    commands.forEach(cmd => {
-        const row = document.createElement("tr");
-        row.innerHTML = `<td>${cmd.app}</td><td title="${cmd.comment}">${cmd.desc}</td><td>${cmd.command}</td><td>${cmd.hit}</td>`;
-        tableBody.appendChild(row);
+    // Fetch shortcuts from Rust via Tauri command
+    async function fetchShortcuts() {
+        const response = await invoke<BlueBirdResponse>('send_command', {
+            cmd: { action: 'get_shortcut_details', args: [] },
+        });
+        if (response.code !== StateCode.OK) {
+            alert(`Failed to retrieve shortcuts because ${response.results.join("; ")}`)
+            return
+        }
+        let shortcuts: Shortcut[] = [];
+        shortcuts = response.results.map((content) => {
+            // Parse the JSON string into a Shortcut
+            return JSON.parse(content) as Shortcut;
+        });
+        // Populate Table
+        shortcuts.forEach(cmd => {
+            const row = document.createElement("tr");
+            row.id = cmd.id
+            row.innerHTML = `<td>${cmd.application}</td><td title="${cmd.comment}">${cmd.description}</td><td>${cmd.shortcut}</td><td>${cmd.hit_number}</td>`;
+            tableBody.appendChild(row);
     });
+    }
+
+    fetchShortcuts();
+
 
     // Add event listener for the 'keydown' event to check for Enter key
     if (searchBox instanceof HTMLInputElement && tableBody instanceof HTMLTableSectionElement)
@@ -67,14 +103,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 searchTable(searchBox, tableBody);  // Trigger search when Enter is pressed
             }
         });
-
-    // // Auto-select first item
-    // const firstRow = tableBody.querySelector("tr");
-    // if (firstRow) {
-    //     firstRow.classList.add("selected");
-    //     selectedRows = [firstRow];
-    //     lastClickedRow = firstRow;
-    // }
 
     // Menu Toggle
     menuButton.addEventListener("click", (event) => {
@@ -135,7 +163,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 selectedRows = [row];
             }
         }
-        lastClickedRow = row;    
+        lastClickedRow = row;
     });
 
 
@@ -143,7 +171,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     contextMenu.classList.add("context-menu", "hidden");
     document.body.appendChild(contextMenu);
 
-    tableBody.addEventListener("contextmenu", (event) => {
+    commandsSection.addEventListener("contextmenu", (event) => {
         event.preventDefault();
 
         const row = (event.target as HTMLElement).closest("tr")!;
@@ -166,7 +194,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const deleteOption = document.createElement("div");
         deleteOption.textContent = "Delete Selected";
         deleteOption.classList.add("menu-item");
-        deleteOption.addEventListener("click", () => deleteSelectedRows());
+        deleteOption.addEventListener("click", async () => deleteSelectedRows());
 
         const createOption = document.createElement("div");
         createOption.textContent = "New Item";
@@ -221,24 +249,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Show the edit modal and hide the commands section
         commandsSection.classList.add("hidden");
         editModal.classList.remove("hidden");
-}
+    }
 
     // Delete Function
-    function deleteSelectedRows() {
+    async function deleteSelectedRows() {
+        {
+            let idList: string[] = selectedRows.map(row => row.id);
+            const response = await invoke<BlueBirdResponse>('send_command', {
+                cmd: { action: 'delete_shortcuts', args: idList },
+            });
+            if (response.code !== StateCode.OK) {
+                alert(`Failed to delete shortcuts because ${response.results.join("; ")}`)
+                return
+            }
+        }
         selectedRows.forEach((row) => row.remove());
         selectedRows = [];
     }
 
     // Edit Save & Cancel Buttons
-    document.getElementById("save-edit")!.addEventListener("click", () => {
+    document.getElementById("save-edit")!.addEventListener("click", async () => {
+        const app = (document.getElementById("edit-app") as HTMLInputElement).value;
+        const desc = (document.getElementById("edit-desc") as HTMLInputElement).value;
+        const command = (document.getElementById("edit-command") as HTMLInputElement).value;
+        const comment = (document.getElementById("edit-comment") as HTMLInputElement).value;
+        const hit_str = (document.getElementById("edit-hit") as HTMLInputElement).value;
+        const hit = parseInt(hit_str, 10);
+        
         if (isCreatingNewCommand) {
             // Handle "Create New Command"
-            const app = (document.getElementById("edit-app") as HTMLInputElement).value;
-            const desc = (document.getElementById("edit-desc") as HTMLInputElement).value;
-            const command = (document.getElementById("edit-command") as HTMLInputElement).value;
-            const comment = (document.getElementById("edit-comment") as HTMLInputElement).value;
-            const hit = parseInt((document.getElementById("edit-hit") as HTMLInputElement).value, 10);
-
+            
             const newRow = document.createElement("tr");
             newRow.innerHTML = `
                 <td>${app}</td>
@@ -246,6 +286,37 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <td>${command}</td>
                 <td>${hit}</td>
             `;
+
+            // Ask for a new id from the backend
+            const response = await invoke<BlueBirdResponse>('send_command', {
+                cmd: { action: 'new_id', args: [] },
+            });
+            if (response.code !== StateCode.OK) {
+                alert(`Failed to get ID because ${response.results.join("; ")}`)
+                return
+            }
+            let new_id: string = response.results[0];
+            newRow.id = new_id;
+
+
+            {
+                // Try to create a new shortcut
+                let sc: Shortcut = {
+                    id: newRow.id,
+                    hit_number: hit,
+                    shortcut: command,
+                    application: app,
+                    description: desc,
+                    comment: comment
+                }
+                const response = await invoke<BlueBirdResponse>('send_command', {
+                    cmd: { action: 'create_shortcuts', args: [JSON.stringify(sc)] },
+                });
+                if (response.code !== StateCode.OK) {
+                    alert(`Failed to create shortcut because ${response.results.join("; ")}`)
+                    return
+                }
+            }
 
             // Append the new row to the table body
             tableBody.appendChild(newRow);
@@ -268,12 +339,32 @@ document.addEventListener('DOMContentLoaded', async () => {
             isCreatingNewCommand = false;
         } else {
             if (!lastClickedRow) return;
+
+            {
+                // Try to update a new shortcut
+                let sc: Shortcut = {
+                    id: lastClickedRow.id,
+                    hit_number: hit,
+                    shortcut: command,
+                    application: app,
+                    description: desc,
+                    comment: comment
+                }
+                const response = await invoke<BlueBirdResponse>('send_command', {
+                    cmd: { action: 'update_shortcuts', args: [JSON.stringify(sc)] },
+                });
+                if (response.code !== StateCode.OK) {
+                    alert(`Failed to update shortcut ${response.results.join("; ")}`)
+                    return
+                }
+            }
+
             const cells = lastClickedRow.getElementsByTagName("td");
-            cells[0].textContent = (document.getElementById("edit-app") as HTMLInputElement).value;
-            cells[1].textContent = (document.getElementById("edit-desc") as HTMLInputElement).value;
-            cells[2].textContent = (document.getElementById("edit-command") as HTMLInputElement).value;
-            cells[1].setAttribute('title', (document.getElementById("edit-command") as HTMLInputElement).value);
-            cells[3].textContent = (document.getElementById("edit-hit") as HTMLInputElement).value;
+            cells[0].textContent = app;
+            cells[1].textContent = desc;
+            cells[2].textContent = command;
+            cells[1].setAttribute('title', comment);
+            cells[3].textContent = hit_str;
             editModal.classList.add("hidden");
             commandsSection.classList.remove("hidden");
         }

@@ -58,6 +58,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const response = await invoke<BlueBirdResponse>('send_command', {
       cmd: { action: 'get_shortcuts', args: [] },
     });
+    if (response.code !== StateCode.OK) {
+      alert(`Failed to retrieve shortcuts because ${response.results.join("; ")}`)
+    }
     shortcuts = response.results.map((content) => {
       // Parse the JSON string into a Shortcut
       return JSON.parse(content) as Shortcut;
@@ -93,7 +96,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     list.forEach((item, index) => {
       const li = document.createElement('li');
       li.innerHTML = item.sc;
-      li.dataset.index = item.id; // Store index for event delegation
+      li.id = item.id; // Store index for event delegation
       if (index === 0) li.classList.add('selected'); // First item selected by default
       fragment.appendChild(li);
     });
@@ -108,9 +111,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       const target = (event.target as HTMLElement).closest('li');
       if (!target) return;
 
-      const index = target.dataset.index;
-      if (index) {
-        executeShortcut(index);
+      const id = target.id;
+      if (id) {
+        executeShortcut(id);
       } else {
         console.error("Index is undefined");
       }
@@ -122,7 +125,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Perform Fuzzy Search
   function fuzzySearch(query: string): Shortcut[] {
-    if (!query.trim() || !fuse) return shortcuts; 
+    if (!query.trim() || !fuse) return shortcuts;
     return fuse.search(query).map(result => result.item);
   }
 
@@ -145,7 +148,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       // If search query exists, hide the shortcut list and show search results
       shortcutListContainer.style.display = 'none';
       searchResultsContainer.style.display = 'block';
-  
+
       // Perform the fuzzy search and render the search results
       const filtered = fuzzySearch(query);  // Assuming fuzzySearch is implemented
       renderList(filtered, searchResultsContainer);
@@ -171,12 +174,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Helper function to update selection styling
   function updateSelection(ul: HTMLUListElement, newIndex: number) {
     const items = ul.getElementsByTagName('li');
-  
+
     _updateSelection(items, newIndex);
   }
 
   function _updateSelection(
-    items: HTMLCollectionOf<HTMLLIElement>, 
+    items: HTMLCollectionOf<HTMLLIElement>,
     newIndex: number
   ) {
     const oldIndex = selectedIndex
@@ -190,8 +193,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Helper function to get active list container
   function getActiveListContainer(): HTMLUListElement {
-    return shortcutListContainer.style.display === 'none' 
-      ? searchResultsContainer 
+    return shortcutListContainer.style.display === 'none'
+      ? searchResultsContainer
       : shortcutListContainer;
   }
 
@@ -203,21 +206,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     switch (e.key) {
       case 'ArrowDown':
         if (selectedIndex < items.length - 1) {
-          _updateSelection(items, selectedIndex+1);
+          _updateSelection(items, selectedIndex + 1);
         }
         e.preventDefault();
         break;
 
       case 'ArrowUp':
         if (selectedIndex > 0) {
-          _updateSelection(items, selectedIndex-1);
+          _updateSelection(items, selectedIndex - 1);
         }
         e.preventDefault();
         break;
 
       case 'Enter':
         if (selectedIndex >= 0 && selectedIndex < items.length) {
-          const itemIdx = items[selectedIndex].dataset.index;
+          const itemIdx = items[selectedIndex].id;
           if (itemIdx) {
             executeShortcut(itemIdx);
           } else {
@@ -258,9 +261,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           cmd: { action: 'execute', args: [shortcut_task] },
         });
 
-        // Log the response from Rust
-        console.log(response.code, ":", shortcut_task );
-        
+        if (response.code !== StateCode.OK) {
+          alert(`Failed to execute shortcut because ${response.results.join("; ")}`);
+          console.log(`Failed to execute shortcut because ${response.results.join("; ")}`);
+        }
         // Reset view and fetch updated shortcuts
         resetView();
         fetchShortcuts();  // Fetch the shortcuts again, as their ranking could change

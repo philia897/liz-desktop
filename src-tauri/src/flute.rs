@@ -1,12 +1,27 @@
+use std::error::Error;
+use std::fmt;
+
 use serde::{Deserialize, Serialize};
 
-use crate::tools::{db::{MusicSheetDB, UserSheet}, exec::execute_shortcut_enigo, rhythm::Rhythm, utils::{id_to_string, string_to_id}};
+use crate::tools::{db::{MusicSheetDB, UserSheet, Shortcut}, exec::execute_shortcut_enigo, rhythm::Rhythm, utils::{generate_id, id_to_string, string_to_id}};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub enum StateCode {
     OK,
     FAIL,
     BUG,
+}
+
+// Implement Display for StateCode to allow it to be printed
+impl fmt::Display for StateCode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let state_str = match *self {
+            StateCode::OK => "OK",
+            StateCode::FAIL => "FAIL",
+            StateCode::BUG => "BUG",
+        };
+        write!(f, "{}", state_str)
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -20,6 +35,49 @@ pub struct BlueBirdResponse {
     pub code: StateCode,
     pub results: Vec<String>,
 }
+
+impl BlueBirdResponse {
+    pub fn new() -> BlueBirdResponse {
+        Self { code: StateCode::OK, results: vec![] }
+    }
+}
+
+#[derive(Debug)]
+pub struct FluteExecuteError {
+    msg: String,
+    code: StateCode,
+}
+
+impl FluteExecuteError {
+    // Constructor to create a new FluteExecuteError
+    pub fn new(msg: &str, code: StateCode) -> Self {
+        FluteExecuteError {
+            msg: msg.to_string(),
+            code,
+        }
+    }
+
+    // Method to get the error message
+    pub fn message(&self) -> &str {
+        &self.msg
+    }
+
+    // Method to get the state code
+    pub fn code(&self) -> &StateCode {
+        &self.code
+    }
+}
+
+// Implement the Display trait to format the error message
+impl fmt::Display for FluteExecuteError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}: {}", self.code(), self.message())
+    }
+}
+
+// Implement the Error trait for FluteExecuteError
+impl Error for FluteExecuteError {}
+
 
 #[derive(Debug)]
 pub struct Flute {
@@ -35,7 +93,7 @@ impl Flute {
     }
 
     fn update_rank(&mut self) {
-        self.music_sheet.sort_by_column("formatted", true);
+        self.music_sheet.sort_by_column("application", true);
         self.music_sheet.sort_by_column("hit_number", false);
     }
 
@@ -46,6 +104,12 @@ impl Flute {
             "execute" => self.command_execute(cmd),
             "persist" => self.command_persist(cmd),
             "info" => self.command_info(cmd),
+            "get_shortcut_details" => self.command_get_shortcut_details(cmd),
+            "new_id" => self.command_new_id(cmd),
+            "create_shortcuts" => self.command_create_shortcuts(cmd),
+            "update_shortcuts" => self.command_update_shortcuts(cmd),
+            "delete_shortcuts" => self.command_delete_shortcuts(cmd),
+            "get_deleted_shortcut_details" => self.command_get_deleted_shortcut_details(cmd),
             _ => self.command_default(cmd),
         }
     }
@@ -67,6 +131,111 @@ impl Flute {
             results : sc_vec
         }
     }
+
+    fn command_get_shortcut_details(&self, _cmd: &LizCommand) -> BlueBirdResponse {
+        let shortcuts = self.music_sheet.retrieve_all();
+        let sc_vec: Vec<String> = shortcuts.into_iter().map(|sc| {
+            sc.to_json_string()
+        }).collect();
+        BlueBirdResponse {
+            code : StateCode::OK,
+            results : sc_vec
+        }
+    }
+
+    fn command_get_deleted_shortcut_details(&self, _cmd: &LizCommand) -> BlueBirdResponse {
+        let shortcuts = self.music_sheet.retrieve_deleted();
+        let sc_vec: Vec<String> = shortcuts.into_iter().map(|sc| {
+            sc.to_json_string()
+        }).collect();
+        BlueBirdResponse {
+            code : StateCode::OK,
+            results : sc_vec
+        }
+    }
+
+    fn command_new_id(&self, _cmd: &LizCommand) -> BlueBirdResponse {
+        BlueBirdResponse {
+            code: StateCode::OK,
+            results : vec![id_to_string(generate_id())]
+        }
+    }
+
+    fn _args_to_shortcut_vec(&self, cmd: &LizCommand) -> Result<Vec<Shortcut>, String> {
+        let shortcuts: Result<Vec<Shortcut>, _> = cmd.args.iter().map(|sc_str| Shortcut::from_json_string(&sc_str)).collect();
+        match shortcuts {
+            Ok(shortcuts) => {
+                Ok(shortcuts)
+            }
+            Err(e) => {
+                let err_str = format!("Failed to parse shortcut: {}", e);
+                Err(err_str)
+            }
+        }
+    }
+
+    fn command_create_shortcuts(&mut self, cmd: &LizCommand) -> BlueBirdResponse {
+        match self._args_to_shortcut_vec(cmd) {
+            Ok(shortcuts) => {
+                self.music_sheet.add_shortcuts(shortcuts, None);
+                BlueBirdResponse::new()
+            },
+            Err(e) => {
+                eprintln!("Create Shortcuts: {}", e);
+                BlueBirdResponse {
+                    code: StateCode::BUG,
+                    results: vec![e]
+                }
+            },
+        }
+    }
+
+    fn command_update_shortcuts(&mut self, cmd: &LizCommand) -> BlueBirdResponse {
+        match self._args_to_shortcut_vec(cmd) {
+            Ok(shortcuts) => {
+                let unmatched: Vec<Shortcut> = self.music_sheet.update_shortcuts(shortcuts);
+                let unmatched: Vec<String> = unmatched.iter().map(|sc| sc.to_json_string()).collect();
+                if unmatched.is_empty() {
+                    BlueBirdResponse {
+                        code: StateCode::OK,
+                        results: unmatched
+                    }
+                } else {
+                    eprintln!("Unmatched: {:?}", unmatched);
+                    BlueBirdResponse {
+                        code: StateCode::FAIL,
+                        results: unmatched
+                    }
+                }
+            },
+            Err(e) => {
+                eprintln!("Update Shortcuts: {}", e);
+                BlueBirdResponse {
+                    code: StateCode::BUG,
+                    results: vec![e]
+                }
+            },
+        }
+    }
+
+    fn command_delete_shortcuts(&mut self, cmd: &LizCommand) -> BlueBirdResponse {
+        let id_to_delete: Result<Vec<u128>, _> = cmd.args.iter().map(|id_str| string_to_id(&id_str)).collect();
+        match id_to_delete {
+            Ok(id_to_delete) => {
+                self.music_sheet.delete_shortcuts(id_to_delete);
+                BlueBirdResponse::new()
+            }
+            Err(e) => {
+                let err_str = format!("Failed to parse id: {}", e);
+                eprintln!("Delete Shortcuts: {}", err_str);
+                BlueBirdResponse {
+                    code: StateCode::BUG,
+                    results: vec![err_str]
+                }
+            }
+        }
+    }
+
     
     fn command_reload(&mut self, cmd: &LizCommand) -> BlueBirdResponse {
         let user_data_path: &String;
@@ -78,10 +247,7 @@ impl Flute {
         match UserSheet::import_from(&user_data_path) {
             Ok(user_data) => {
                 user_data.transform_to_db(&mut self.music_sheet);
-                BlueBirdResponse {
-                    code : StateCode::OK,
-                    results : vec!["Reload Done".to_string()]
-                }
+                BlueBirdResponse::new()
             }
             Err(e) => {
                 eprintln!("Failure: failed to import user data from: {}, error: {}", user_data_path, e);
@@ -93,6 +259,39 @@ impl Flute {
         }
     }
     
+    /// Execute the shortcut of given id
+    fn _execute(&mut self, id_str:&str) -> Result<(), FluteExecuteError> {
+        match string_to_id(id_str) {
+            Ok(id) =>  {
+                let sc = self.music_sheet.retrieve(id, None);
+                if sc.is_none() {
+                    return Err(FluteExecuteError::new(&format!("No keycode found for id {}", id_str), StateCode::BUG));
+                }
+                let sc = sc.unwrap();
+                match sc.parse_to_keycode(&self.music_sheet.keymap) {
+                    Err(e) => {
+                        let err_str = format!("Failed to parse {}: {}", sc.shortcut, e);
+                        Err(FluteExecuteError::new(&err_str, StateCode::BUG))
+                    },
+                    Ok(keycode) => {
+                        println!("Execute: {}: {}", id_str, keycode );
+                        if let Err(e) = execute_shortcut_enigo(&keycode, self.rhythm.interval_ms) {
+                            let err_str = format!("Enigo fails to execute shortcut {}: {}", sc.shortcut, e);
+                            return Err(FluteExecuteError::new(&err_str, StateCode::FAIL));
+                        }
+                        let _ = self.music_sheet.hit_num_up(id);
+                        self.update_rank();
+                        Ok(())
+                    },
+                }
+            },
+            Err(e) => {
+                let err_str = format!("BUG: Failed to parse ID {}: {}", id_str, e);
+                Err(FluteExecuteError::new(&err_str, StateCode::BUG))
+            },
+        }
+    }
+
     fn command_execute(&mut self, cmd: &LizCommand) -> BlueBirdResponse {
         if cmd.args.is_empty() {
             eprintln!("BUG: Empty args, expect one index on args[0]");
@@ -101,45 +300,13 @@ impl Flute {
                 results : vec!["BUG:".to_string(), "Empty args:".to_string(), "Expect one index".to_string()]
             }
         }
-        match string_to_id(cmd.args[0].as_str()) {
-            Ok(id) =>  {
-                let sc = self.music_sheet.retrieve(id, None);
-                if sc.is_none() {
-                    eprintln!("BUG: No keycode found on ID {}", cmd.args[0]);
-                    return BlueBirdResponse {
-                        code : StateCode::BUG,
-                        results : vec!["BUG:".to_string(), "No keycode found on index:".to_string(), cmd.args[0].clone()]
-                    }
-                }
-                let sc = sc.unwrap();
-                let keycode = sc.parse_to_keycode(&self.music_sheet.keymap);
-                if keycode.is_none() {
-                    eprintln!("Error: Parse keycode error {}", sc.to_json_string().unwrap_or("Bad shortcut".to_string()));
-                    return BlueBirdResponse {
-                        code : StateCode::BUG,
-                        results : vec!["BUG:".to_string(), "No keycode found on index:".to_string(), cmd.args[0].clone()]
-                    }
-                }
-                println!("Execute: {}: {}", cmd.args[0], sc.format_output(&self.rhythm.shortcut_print_fmt) );
-                if let Err(e) = execute_shortcut_enigo(&keycode.unwrap(), self.rhythm.interval_ms) {
-                    eprintln!("Enigo Failure: Fail to execute shortcut: {:?}", e);
-                    return BlueBirdResponse {
-                        code : StateCode::FAIL,
-                        results : vec!["Failure:".to_string(), format!("{}", e)]
-                    }
-                }
-                let _ = self.music_sheet.hit_num_up(id);
-                self.update_rank();
-                return BlueBirdResponse {
-                    code : StateCode::OK,
-                    results : vec![]
-                }
-            },
-            Err(_e) => {
-                eprintln!("BUG: Parsing this index error: {}", cmd.args[0]);
-                return BlueBirdResponse {
-                    code : StateCode::BUG,
-                    results : vec!["BUG:".to_string(), "Parsing this index error:".to_string(), cmd.args[0].clone()]
+        match self._execute(cmd.args[0].as_str()) {
+            Ok(_) => BlueBirdResponse::new(),
+            Err(e) => {
+                eprint!("Execute: {}", e);
+                BlueBirdResponse {
+                    results : vec![e.message().to_string()],
+                    code : e.code,
                 }
             },
         }
@@ -152,10 +319,7 @@ impl Flute {
     fn command_persist(&self, _cmd: &LizCommand) -> BlueBirdResponse {
         match self.persist() {
             Ok(()) => {
-                BlueBirdResponse{
-                    code : StateCode::OK,
-                    results : vec![]
-                }
+                BlueBirdResponse::new()
             },
             Err(e) => {
                 eprintln!("BUG: Failed to persist music_sheet, error: {}", e);

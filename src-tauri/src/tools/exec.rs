@@ -3,8 +3,7 @@ use std::time::Duration;
 use std::error::Error;
 
 use enigo::{
-    Direction::{Press, Release},
-    Enigo, Key, Keyboard, Settings
+    Direction::{Press, Release}, Enigo, InputError, Key, Keyboard, Settings
 };
 
 
@@ -88,7 +87,7 @@ fn simulate_key_events_enigo(enigo: &mut Enigo, sequence: &str) -> Result<(), Bo
 }
 
 /// Simulate tpying a text using Enigo.
-fn simulate_text_events_enigo(enigo: &mut Enigo, text: &str) -> Result<(), Box<dyn Error>> {
+fn simulate_text_events_enigo(enigo: &mut Enigo, text: &str) -> Result<(), InputError> {
     enigo.text(text)?;
     Ok(())
 }

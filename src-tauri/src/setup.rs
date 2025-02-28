@@ -125,6 +125,7 @@ pub fn create_flute(rhythm_path: Option<String>) -> Result<Flute, Box<dyn std::e
         rhythm : rhythm
     };
     flute.calibrate();
+    flute.music_sheet.read_keymap(&flute.rhythm.keymap_path);
     Ok(flute)
 }
 

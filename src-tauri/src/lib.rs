@@ -35,7 +35,7 @@ fn execute_cmd(cmd: LizCommand, app: &AppHandle) -> BlueBirdResponse {
 #[tauri::command]
 fn send_command(cmd: LizCommand, app: AppHandle) -> BlueBirdResponse {
     match cmd.action.as_str() {
-        "reload" => {
+        "reload" | "create_shortcuts" | "update_shortcuts" | "delete_shortcuts" => {
             let resp: BlueBirdResponse = execute_cmd(cmd, &app);
             let _ = app.emit("fetch-again", "");
             resp
@@ -46,7 +46,8 @@ fn send_command(cmd: LizCommand, app: AppHandle) -> BlueBirdResponse {
 
 fn cleanup(app: &AppHandle) {
     match app.state::<Mutex<Flute>>().lock() {
-        Ok(flute) => {
+        Ok(mut flute) => {
+            flute.music_sheet.clear_deleted(); // TODO: Deleted shall be more wisely handled.
             let file_path: &String = &flute.rhythm.music_sheet_path;
             if let Err(e) = flute.music_sheet.export_to_json(file_path) {
                 eprintln!("Failed to save music sheet in Drop: {}", e);

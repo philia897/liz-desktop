@@ -1,4 +1,5 @@
 use std::env;
+use std::error::Error;
 use std::path::{Path, PathBuf};
 use uuid::Uuid;
 
@@ -48,9 +49,17 @@ pub fn generate_id() -> u128 {
 }
 
 // Convert String to u128 id
-pub fn string_to_id(s: &str) -> Result<u128, uuid::Error> {
-    let uuid = Uuid::parse_str(s)?;
-    let id: u128 = uuid.as_u128();
+pub fn string_to_id(s: &str) -> Result<u128, Box<dyn Error>> {
+    let id: u128 = match Uuid::parse_str(s) {
+        Ok(uuid) => {
+            uuid.as_u128()
+        },
+        Err(e) => {
+            eprintln!("Failed to parse string using UUID lib, error: {}\nTry to use str::parse instead...", e);
+            s.parse::<u128>()?
+        },
+    } ;
+    
     Ok(id)
 }
 
@@ -58,4 +67,39 @@ pub fn string_to_id(s: &str) -> Result<u128, uuid::Error> {
 pub fn id_to_string(n: u128) -> String {
     let uuid = Uuid::from_u128(n);
     uuid.to_string()
+}
+
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_id_string_converting() {
+        let id: u128 = generate_id();
+        
+        let id_str = id_to_string(id);
+        println!("id_to_string: {} -> {}", id, id_str);
+
+        let id2 = string_to_id(&id_str).unwrap();
+        println!("string_to_id: {} -> {}", id_str, id2);
+
+        assert_eq!(id, id2);
+
+        let id_str = id.to_string();
+        println!("id_to_string 2: {} -> {}", id, id_str);
+
+        let id2 = id_str.parse::<u128>().unwrap();
+        println!("string_to_id 2: {} -> {}", id_str, id2);
+
+        assert_eq!(id, id2);
+
+        let id2 = string_to_id(&id_str).unwrap_or(0);
+        println!("string_to_id 3: {} -> {}", id_str, id2);
+
+        assert_eq!(id, id2)
+
+    }
+
 }

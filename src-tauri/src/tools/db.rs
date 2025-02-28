@@ -3,19 +3,51 @@ use std::fs::{self, File, OpenOptions};
 use std::io::Read;
 use std::error::Error;
 use serde::{Deserialize, Serialize};
+use serde::de;
 
-use super::utils::generate_id;
+use super::utils::{generate_id, id_to_string, string_to_id};
 
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(default)]
 pub struct Shortcut {
+    #[serde(serialize_with = "serialize_id", deserialize_with = "deserialize_id")]
     pub id: u128,  // UUID
+
     pub hit_number: i64,  // How many time the shortcut is hit
     pub shortcut: String,   // Shortcut string
     pub application: String,   // Application using this shortcut
     pub description: String,   // Shortcut description, shall not be too long
     pub comment: String,   // Extra info or explanation for the shortcut
+}
+
+fn serialize_id<S>(id: &u128, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    // Serialize `id` as a string
+    serializer.serialize_str(&id_to_string(*id))
+}
+
+fn deserialize_id<'de, D>(deserializer: D) -> Result<u128, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    // Deserialize `id` from a string
+    let s: String = String::deserialize(deserializer)?;
+    
+    string_to_id(&s).map_err(de::Error::custom)
+}
+
+impl Shortcut {
+    // Example method to update shortcut values
+    pub fn update(&mut self, new_sc: &Shortcut) {
+        self.hit_number = new_sc.hit_number;
+        self.shortcut = new_sc.shortcut.clone();
+        self.application = new_sc.application.clone();
+        self.description = new_sc.description.clone();
+        self.comment = new_sc.comment.clone();
+    }
 }
 
 impl Default for Shortcut {
@@ -32,9 +64,9 @@ impl Default for Shortcut {
 }
 
 impl Shortcut {
-    pub fn to_json_string(&self) -> Result<String, Box<dyn Error>> {
-        let json_string = serde_json::to_string(self)?;
-        Ok(json_string)
+    pub fn to_json_string(&self) -> String {
+        let json_string = serde_json::to_string(self).unwrap();
+        json_string
     }
 
     pub fn from_json_string(json_str: &str) -> Result<Self, Box<dyn Error>> {
@@ -43,7 +75,7 @@ impl Shortcut {
     }
 
     pub fn format_output(&self, fmt: &str) -> String {
-        let mut formatted_str = fmt.to_string();
+        let mut formatted_str: String = fmt.to_string();
         
         // Replace all possible attributes
         formatted_str = formatted_str.replace("#id", &self.id.to_string());
@@ -57,9 +89,9 @@ impl Shortcut {
     }
 
     /// Parse the shortcut string to keycodes that can be used for execution
-    pub fn parse_to_keycode(&self, key_event_codes: &HashMap<String, String>) -> Option<String> {
-        let rst= convert_shortcut_to_key_presses(&self.shortcut, key_event_codes);
-        rst
+    pub fn parse_to_keycode(&self, key_event_codes: &HashMap<String, String>) -> Result<String, Box<dyn Error>> {
+        let rst: String= convert_shortcut_to_key_presses(&self.shortcut, key_event_codes);
+        Ok(rst)
     }
 
     /// Remove duplicates by considering all attributes except hit_number, or the id is the same
@@ -168,13 +200,22 @@ impl MusicSheetDB {
     }
 
     /// If the id is not found in data, then return false and do nothing.
-    pub fn update_shortcut(&mut self, updated_shortcut: Shortcut) -> bool {
-        if let Some(shortcut) = self.t.data.iter_mut().find(|s| s.id == updated_shortcut.id) {
-            *shortcut = updated_shortcut;
-            true
-        } else {
-            false
+    pub fn update_shortcuts(&mut self, new_shortcuts: Vec<Shortcut>) -> Vec<Shortcut> {
+        let mut unmatched: Vec<Shortcut> = Vec::new();
+        let mut modified_shortcuts: Vec<Shortcut> = Vec::new();
+
+        for new_sc in new_shortcuts {
+            if let Some(shortcut) = self.t.data.iter_mut().find(|s| s.id == new_sc.id) {
+                modified_shortcuts.push(shortcut.clone());
+                // *shortcut = new_sc;  // replace the entire object 
+                shortcut.update(&new_sc);
+            } else {
+                unmatched.push(new_sc);
+            }
         }
+        self.t.deleted.extend(modified_shortcuts);
+
+        unmatched
     }
 
 }
@@ -237,7 +278,7 @@ impl MusicSheetDB {
         }
     }
 
-    /// Sort by a specific column name
+    /// Sort by a specific column name, support: id, hit_number, application, description
     pub fn sort_by_column(&mut self, column: &str, ascending: bool) {
         // Decide on the comparison function based on the column, done once
         let comparator: Box<dyn Fn(&Shortcut, &Shortcut) -> std::cmp::Ordering> = match column {
@@ -331,7 +372,7 @@ impl UserSheet {
  * type 123!@ means directly type these characters "123!@".
  * Note: "ctrl + c" will be consider press "ctrl", then "+" then "c", as they are splited by space. 
  */
-fn convert_shortcut_to_key_presses(shortcut: &str, key_event_codes: &HashMap<String, String>) -> Option<String> {
+fn convert_shortcut_to_key_presses(shortcut: &str, key_event_codes: &HashMap<String, String>) -> String {
     let mut result = Vec::new();
 
     // Split by marker [STR] to different blocks
@@ -387,7 +428,7 @@ fn convert_shortcut_to_key_presses(shortcut: &str, key_event_codes: &HashMap<Str
         }
     }
 
-    Some(result.join(" "))
+    result.join(" ")
 }
 
 
@@ -409,49 +450,49 @@ mod tests {
         let shortcut = "Meta+S Tab";
         let expected = Some("126.1 s.1 s.0 126.0 15.1 15.0".to_string());
         let result = convert_shortcut_to_key_presses(shortcut, &key_event_codes);
-        assert_eq!(result, expected);
+        assert_eq!(Some(result), expected);
 
         // Test 2: Test with characters (e.g., numbers or symbols)
         let shortcut = "123!@# tab ABC";
         let expected = Some("[STR]+ 123!@#[STR] 15.1 15.0 [STR]+ ABC[STR]".to_string());
         let result = convert_shortcut_to_key_presses(shortcut, &key_event_codes);
-        assert_eq!(result, expected);
+        assert_eq!(Some(result), expected);
 
         // Test 3: Test with more complex shortcuts (e.g., multiple key combinations)
         let shortcut = "meta+pageup tab 123!@# meta+tab";
         let expected = Some("126.1 104.1 104.0 126.0 15.1 15.0 [STR]+ 123!@#[STR] 126.1 15.1 15.0 126.0".to_string());
         let result = convert_shortcut_to_key_presses(shortcut, &key_event_codes);
-        assert_eq!(result, expected);
+        assert_eq!(Some(result), expected);
 
         // Test 4: Test with unrecognized keys (e.g., no mapping for 'enter')
         let shortcut = "enter tab";
         let expected = Some("[STR]+ enter[STR] 15.1 15.0".to_string());
         let result = convert_shortcut_to_key_presses(shortcut, &key_event_codes);
-        assert_eq!(result, expected);
+        assert_eq!(Some(result), expected);
 
         // Test 5: Test with additional '+' combinations
         let shortcut = "meta+tab+pageup";
         let expected = Some("126.1 15.1 104.1 104.0 15.0 126.0".to_string());
         let result = convert_shortcut_to_key_presses(shortcut, &key_event_codes);
-        assert_eq!(result, expected);
+        assert_eq!(Some(result), expected);
 
         // Test 6: Test empty input
         let shortcut = "";
         let expected = Some("".to_string());
         let result = convert_shortcut_to_key_presses(shortcut, &key_event_codes);
-        assert_eq!(result, expected);
+        assert_eq!(Some(result), expected);
 
         // Test 7: Test plus with space
         let shortcut = "a + b + c";
         let expected = Some("a.1 a.0 +.1 +.0 b.1 b.0 +.1 +.0 c.1 c.0".to_string());
         let result = convert_shortcut_to_key_presses(shortcut, &key_event_codes);
-        assert_eq!(result, expected);
+        assert_eq!(Some(result), expected);
 
         // Test 8: Test [STR]
         let shortcut = "meta+pageup tab [STR]+ 123! @# [STR] meta+tab";
         let expected = Some("126.1 104.1 104.0 126.0 15.1 15.0 [STR]+ 123! @#[STR] 126.1 15.1 15.0 126.0".to_string());
         let result = convert_shortcut_to_key_presses(shortcut, &key_event_codes);
-        assert_eq!(result, expected);
+        assert_eq!(Some(result), expected);
 
     }
 }
