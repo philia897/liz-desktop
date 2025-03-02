@@ -116,8 +116,96 @@ impl Flute {
             "update_shortcuts" => self.command_update_shortcuts(cmd),
             "delete_shortcuts" => self.command_delete_shortcuts(cmd),
             "get_deleted_shortcut_details" => self.command_get_deleted_shortcut_details(cmd),
+            "export_shortcuts" => self.command_export_shortcuts(cmd),
+            "import_shortcuts" => self.command_import_shortcuts(cmd),
             _ => self.command_default(cmd),
         }
+    }
+
+    fn _get_sc_by_id(&self, id_str: &str) -> Result<Shortcut, Box<dyn Error>> {
+        let id: u128 = string_to_id(id_str)?;
+        let r: &Shortcut = self.music_sheet.retrieve(id, None).ok_or("Id does not exist".to_string())?;
+        Ok(r.clone())
+    }
+
+    fn command_export_shortcuts(&self, cmd: &LizCommand) -> BlueBirdResponse {
+        fn split_vec(vec: &Vec<String>) -> Option<(String, Vec<String>)> {
+            let (first, rest) = vec.split_first()?; // Get first element and the rest
+            Some((first.clone(), rest.to_vec())) // Clone to return owned values
+        }
+        if let Some((file_path, id_list)) = split_vec(&cmd.args) {
+            let sc_to_export: Result<Vec<Shortcut>, _> = id_list
+                .iter()
+                .map(|id_str| {
+                    self._get_sc_by_id(&id_str)
+                    })
+                .collect();
+            match sc_to_export {
+                Ok(sc_to_export) => {
+                    println!("Export to {}", file_path);
+                    let sheet = UserSheet::new(sc_to_export);
+                    match sheet.export_to_json(&file_path){
+                        Ok(_) => BlueBirdResponse::new(),
+                        Err(e) => {
+                            let err_str = format!("Failed to export to {}: {}", file_path, e);
+                            eprintln!("Export Shortcuts: {}", err_str);
+                            BlueBirdResponse {
+                                code: StateCode::BUG,
+                                results: vec![err_str],
+                            }
+                        },
+                    }
+                    
+                }
+                Err(e) => {
+                    let err_str = format!("Failed to parse id: {}", e);
+                    eprintln!("Export Shortcuts: {}", err_str);
+                    BlueBirdResponse {
+                        code: StateCode::BUG,
+                        results: vec![err_str],
+                    }
+                }
+            }
+        } else {
+            BlueBirdResponse {
+                code: StateCode::BUG,
+                results: vec!["File path is not given".to_string()],
+            }
+        }
+
+    }
+
+    fn command_import_shortcuts(&mut self, cmd: &LizCommand) -> BlueBirdResponse {
+        if cmd.args.is_empty() {
+            eprintln!("BUG: Empty args, expect one file_path");
+            return BlueBirdResponse {
+                code: StateCode::BUG,
+                results: vec!["Empty args, expect one shortcut id".to_string()],
+            };
+        }
+        println!("Import from {:?}", cmd.args);
+        let mut failed_paths: Vec<String> = Vec::new();
+        for file in cmd.args.iter() {
+            match UserSheet::import_from(file) {
+                Ok(sheet) => {
+                    sheet.transform_to_db(&mut self.music_sheet);
+                },
+                Err(e) => {
+                    let err_str = format!("Failed to import file {}: {}", file, e);
+                    eprintln!("Export Shortcuts: {}", err_str);
+                    failed_paths.push(file.clone());
+                },
+            }
+        }
+        if failed_paths.is_empty() {
+            BlueBirdResponse::new()
+        } else {
+            BlueBirdResponse {
+                code: StateCode::FAIL,
+                results: failed_paths,
+            }
+        }
+        
     }
 
     fn command_get_shortcuts(&self, _cmd: &LizCommand) -> BlueBirdResponse {
@@ -325,11 +413,7 @@ impl Flute {
             eprintln!("BUG: Empty args, expect one index on args[0]");
             return BlueBirdResponse {
                 code: StateCode::BUG,
-                results: vec![
-                    "BUG:".to_string(),
-                    "Empty args:".to_string(),
-                    "Expect one index".to_string(),
-                ],
+                results: vec!["Empty args, expect one shortcut id".to_string()],
             };
         }
         match self._execute(cmd.args[0].as_str()) {
@@ -356,10 +440,7 @@ impl Flute {
                 eprintln!("BUG: Failed to persist music_sheet, error: {}", e);
                 BlueBirdResponse {
                     code: StateCode::BUG,
-                    results: vec![
-                        "BUG:".to_string(),
-                        "Failed to persist music_sheet".to_string(),
-                    ],
+                    results: vec!["Failed to persist music_sheet".to_string()],
                 }
             }
         }

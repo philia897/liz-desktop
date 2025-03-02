@@ -319,9 +319,9 @@ pub struct UserSheet {
 
 impl UserSheet {
     // Initialize an empty table
-    // pub fn new() -> Self {
-    //     Self { data: Vec::new() }
-    // }
+    pub fn new(shortcuts: Vec<Shortcut>) -> Self {
+        Self { data: shortcuts }
+    }
 
     pub fn import_from(path: &str) -> Result<Self, Box<dyn Error>> {
         let metadata = fs::metadata(path)?;
@@ -364,6 +364,17 @@ impl UserSheet {
         }
 
         Ok(Self { data: all_data })
+    }
+
+    /// Export to JSON file
+    pub fn export_to_json(&self, file_path: &str) -> Result<(), Box<dyn Error>> {
+        let _ = std::fs::remove_file(file_path);
+        let file = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(file_path)?;
+        serde_json::to_writer(file, &self.data)?;
+        Ok(())
     }
 
     pub fn transform_to_db(&self, db: &mut MusicSheetDB) {

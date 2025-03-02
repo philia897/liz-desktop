@@ -1,6 +1,6 @@
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { invoke } from '@tauri-apps/api/core';
-import { confirm, message } from '@tauri-apps/plugin-dialog'
+import { confirm, message, open, save } from '@tauri-apps/plugin-dialog'
 
 enum StateCode {
     OK = "OK",
@@ -8,6 +8,7 @@ enum StateCode {
     BUG = "BUG",
 }
 
+const file_extensions = ['json', 'txt'];
 
 // Class for BlueBirdResponse
 type BlueBirdResponse = {
@@ -104,11 +105,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         searchBox.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault();  // Prevent form submission (if inside a form)
-                
+
                 // Clear selected rows
                 selectedRows.forEach((r) => r.classList.remove("selected"));
                 selectedRows = [];
-                
+
                 searchTable(searchBox, tableBody);  // Trigger search when Enter is pressed
             }
         });
@@ -207,8 +208,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         deleteOption.addEventListener("click", async () => {
             const confirmation = await confirm(
                 `Are you sure you want to delete the selected ${selectedRows.length} rows?`,
-                { title: 'Tauri', kind: 'warning' }
-              );
+                { title: 'Liz Warning', kind: 'warning' }
+            );
             if (confirmation) {
                 await deleteSelectedRows();
             }
@@ -219,12 +220,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         createOption.classList.add("menu-item");
         createOption.addEventListener("click", () => createNewCommand());
 
+        const exportOption = document.createElement("div");
+        exportOption.textContent = "Export Selected";
+        exportOption.classList.add("menu-item");
+        exportOption.addEventListener("click", () => exportSelectedRows());
+
+        const importOption = document.createElement("div");
+        importOption.textContent = "Import Local";
+        importOption.classList.add("menu-item");
+        importOption.addEventListener("click", () => importFromFileOrDir());
+
         contextMenu.appendChild(createOption);
         if (selectedRows.length === 1) {
             contextMenu.appendChild(editOption);
             deleteOption.textContent = "Delete";
         }
         contextMenu.appendChild(deleteOption);
+        contextMenu.appendChild(exportOption);
+        contextMenu.appendChild(importOption);
 
         if (event instanceof MouseEvent) {
             // Position context menu
@@ -285,6 +298,52 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         selectedRows.forEach((row) => row.remove());
         selectedRows = [];
+    }
+
+    // Export Function
+    async function exportSelectedRows() {
+        const path = await save({
+            filters: [
+                {
+                    name: 'Export to file',
+                    extensions: file_extensions,
+                },
+            ],
+        });
+        let idList: string[] = selectedRows.map(row => row.id);
+        const response = await invoke<BlueBirdResponse>('send_command', {
+            cmd: { action: 'export_shortcuts', args: [path].concat(idList) },
+        });
+        if (response.code !== StateCode.OK) {
+            await message(`Failed to export shortcuts because ${response.results.join("; ")}`, {
+                title: 'Liz Error', kind: 'error'
+            });
+            return
+        }
+    }
+
+    // Import Function
+    async function importFromFileOrDir() {
+        const file_paths = await open({
+            multiple: true,
+            directory: false,
+            filters: [{
+                name: 'Import from file(s)',
+                extensions: file_extensions,
+            }],
+        })
+        if (!file_paths) {
+            return
+        }
+        const response = await invoke<BlueBirdResponse>('send_command', {
+            cmd: { action: 'import_shortcuts', args: file_paths },
+        });
+        if (response.code !== StateCode.OK) {
+            await message(`Failed to import shortcuts: ${response.results.join("; ")}`, {
+                title: 'Liz Error', kind: 'error'
+            });
+        }
+        fetchShortcuts()
     }
 
     // Edit Save & Cancel Buttons

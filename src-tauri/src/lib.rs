@@ -33,7 +33,7 @@ fn execute_cmd(cmd: LizCommand, app: &AppHandle) -> BlueBirdResponse {
 #[tauri::command]
 fn send_command(cmd: LizCommand, app: AppHandle) -> BlueBirdResponse {
     match cmd.action.as_str() {
-        "reload" | "create_shortcuts" | "update_shortcuts" | "delete_shortcuts" => {
+        "reload" | "create_shortcuts" | "update_shortcuts" | "delete_shortcuts" | "import_shortcuts" => {
             let resp: BlueBirdResponse = execute_cmd(cmd, &app);
             let _ = app.emit("fetch-again", "");
             resp

@@ -253,6 +253,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     } else {  // Ensure the window has truly lost focus and we have a valid `shortcut_task` to execute
       if (!shortcut_task) {
+        appWindow.hide()
+        resetView();
+        const ul = getActiveListContainer();
+        const items = ul.getElementsByTagName('li');
+        _updateSelection(items, 0);
         return
       }
       try {
