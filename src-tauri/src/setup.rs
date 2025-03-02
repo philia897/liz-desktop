@@ -47,27 +47,28 @@ fn handle_menu_events(app: &AppHandle, event: &MenuEvent) {
         }
         "config" => {
             println!("config menu item was clicked");
-            let path = PathBuf::from("config.html");
-            println!("{:?}", path);
-            if let Err(e) =
-                tauri::WebviewWindowBuilder::new(app, "config", tauri::WebviewUrl::App(path))
-                    .decorations(false)
-                    .transparent(true)
-                    .center()
-                    .inner_size(800.0, 600.0)
-                    .min_inner_size(500.0, 200.0)
-                    .build()
-            {
-                let view = app.get_webview_window("config");
-                if view.is_none() {
-                    println!(
-                        "handle_menu_events: Failed to create Config Panel window: {}",
-                        e
-                    );
-                } else {
-                    let _ = view.unwrap().show();
-                }
-            }
+            let _ = app.emit("create-config", "");
+            // let path = PathBuf::from("config.html");
+            // println!("{:?}", path);
+            // if let Err(e) =
+            //     tauri::WebviewWindowBuilder::new(app, "config", tauri::WebviewUrl::App(path))
+            //         .decorations(false)
+            //         .transparent(true)
+            //         .center()
+            //         .inner_size(800.0, 600.0)
+            //         .min_inner_size(500.0, 200.0)
+            //         .build()
+            // {
+            //     let view = app.get_webview_window("config");
+            //     if view.is_none() {
+            //         println!(
+            //             "handle_menu_events: Failed to create Config Panel window: {}",
+            //             e
+            //         );
+            //     } else {
+            //         let _ = view.unwrap().show();
+            //     }
+            // }
         }
         "persist" => {
             println!("Persist data into music_sheet.lock");
