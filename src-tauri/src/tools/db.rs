@@ -258,7 +258,7 @@ impl MusicSheetDB {
         let mut file = match File::open(keymap_path) {
             Ok(f) => f,
             Err(e) => {
-                eprint!("Error opening keymap file: {}\n", e);
+                eprint!("Warning: Keymap file does not exist: {}\n", e);
                 return; // Return an empty map in case of error
             }
         };

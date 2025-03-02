@@ -1,14 +1,15 @@
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { invoke } from '@tauri-apps/api/core';
 import { confirm, message, open, save } from '@tauri-apps/plugin-dialog'
+import { initialize_settings } from "./rhythm";
+
+const file_extensions = ['json', 'txt'];
 
 enum StateCode {
     OK = "OK",
     FAIL = "FAIL",
     BUG = "BUG",
 }
-
-const file_extensions = ['json', 'txt'];
 
 // Class for BlueBirdResponse
 type BlueBirdResponse = {
@@ -78,7 +79,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         if (response.code !== StateCode.OK) {
             await message(`Failed to retrieve shortcuts because ${response.results.join("; ")}`, {
-                title: 'Liz Error', kind: 'error'
+                title: 'Error information', kind: 'error'
             });
             return
         }
@@ -87,6 +88,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Parse the JSON string into a Shortcut
             return JSON.parse(content) as Shortcut;
         });
+
+        while (tableBody.firstChild) {
+            tableBody.removeChild(tableBody.firstChild);
+        } // Clear previous list
+
         // Populate Table
         shortcuts.forEach(cmd => {
             const row = document.createElement("tr");
@@ -134,6 +140,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else if (option === "settings") {
                 settingsSection.classList.remove("hidden");
                 commandsSection.classList.add("hidden");
+
+                initialize_settings()
             }
 
             // Hide dropdown after selection
@@ -207,8 +215,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         deleteOption.classList.add("menu-item");
         deleteOption.addEventListener("click", async () => {
             const confirmation = await confirm(
-                `Are you sure you want to delete the selected ${selectedRows.length} rows?`,
-                { title: 'Liz Warning', kind: 'warning' }
+                `Are you sure you want to delete the selected ${selectedRows.length} shortcuts?`,
+                { title: 'Confirm to Delete', kind: 'warning' }
             );
             if (confirmation) {
                 await deleteSelectedRows();
@@ -291,7 +299,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             if (response.code !== StateCode.OK) {
                 await message(`Failed to delete shortcuts because ${response.results.join("; ")}`, {
-                    title: 'Liz Error', kind: 'error'
+                    title: 'Error information', kind: 'error'
                 });
                 return
             }
@@ -316,7 +324,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         if (response.code !== StateCode.OK) {
             await message(`Failed to export shortcuts because ${response.results.join("; ")}`, {
-                title: 'Liz Error', kind: 'error'
+                title: 'Error information', kind: 'error'
             });
             return
         }
@@ -340,7 +348,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         if (response.code !== StateCode.OK) {
             await message(`Failed to import shortcuts: ${response.results.join("; ")}`, {
-                title: 'Liz Error', kind: 'error'
+                title: 'Error information', kind: 'error'
             });
         }
         fetchShortcuts()
@@ -372,7 +380,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             if (response.code !== StateCode.OK) {
                 await message(`Failed to get ID because ${response.results.join("; ")}`, {
-                    title: 'Liz Error', kind: 'error'
+                    title: 'Error information', kind: 'error'
                 });
                 return
             }
@@ -395,7 +403,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
                 if (response.code !== StateCode.OK) {
                     await message(`Failed to create shortcut because ${response.results.join("; ")}`, {
-                        title: 'Liz Error', kind: 'error'
+                        title: 'Error information', kind: 'error'
                     });
                     return
                 }
@@ -438,7 +446,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
                 if (response.code !== StateCode.OK) {
                     await message(`Failed to update shortcut ${response.results.join("; ")}`, {
-                        title: 'Liz Error', kind: 'error'
+                        title: 'Error information', kind: 'error'
                     });
                     return
                 }

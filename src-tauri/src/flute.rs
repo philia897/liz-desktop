@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use crate::tools::{
     db::{MusicSheetDB, Shortcut, UserSheet},
     exec::execute_shortcut_enigo,
-    rhythm::Rhythm,
+    rhythm::{parse_rhythm, Rhythm},
     utils::{generate_id, id_to_string, string_to_id},
 };
 
@@ -106,7 +106,7 @@ impl Flute {
     pub fn play(&mut self, cmd: &LizCommand) -> BlueBirdResponse {
         match cmd.action.as_str() {
             "get_shortcuts" => self.command_get_shortcuts(cmd),
-            "reload" => self.command_reload(cmd),
+            // "reload" => self.command_reload(cmd),
             "execute" => self.command_execute(cmd),
             "persist" => self.command_persist(cmd),
             "info" => self.command_info(cmd),
@@ -118,13 +118,17 @@ impl Flute {
             "get_deleted_shortcut_details" => self.command_get_deleted_shortcut_details(cmd),
             "export_shortcuts" => self.command_export_shortcuts(cmd),
             "import_shortcuts" => self.command_import_shortcuts(cmd),
+            "update_rhythm" => self.command_update_rhythm(cmd),
             _ => self.command_default(cmd),
         }
     }
 
     fn _get_sc_by_id(&self, id_str: &str) -> Result<Shortcut, Box<dyn Error>> {
         let id: u128 = string_to_id(id_str)?;
-        let r: &Shortcut = self.music_sheet.retrieve(id, None).ok_or("Id does not exist".to_string())?;
+        let r: &Shortcut = self
+            .music_sheet
+            .retrieve(id, None)
+            .ok_or("Id does not exist".to_string())?;
         Ok(r.clone())
     }
 
@@ -136,15 +140,13 @@ impl Flute {
         if let Some((file_path, id_list)) = split_vec(&cmd.args) {
             let sc_to_export: Result<Vec<Shortcut>, _> = id_list
                 .iter()
-                .map(|id_str| {
-                    self._get_sc_by_id(&id_str)
-                    })
+                .map(|id_str| self._get_sc_by_id(&id_str))
                 .collect();
             match sc_to_export {
                 Ok(sc_to_export) => {
                     println!("Export to {}", file_path);
                     let sheet = UserSheet::new(sc_to_export);
-                    match sheet.export_to_json(&file_path){
+                    match sheet.export_to_json(&file_path) {
                         Ok(_) => BlueBirdResponse::new(),
                         Err(e) => {
                             let err_str = format!("Failed to export to {}: {}", file_path, e);
@@ -153,9 +155,8 @@ impl Flute {
                                 code: StateCode::BUG,
                                 results: vec![err_str],
                             }
-                        },
+                        }
                     }
-                    
                 }
                 Err(e) => {
                     let err_str = format!("Failed to parse id: {}", e);
@@ -172,7 +173,6 @@ impl Flute {
                 results: vec!["File path is not given".to_string()],
             }
         }
-
     }
 
     fn command_import_shortcuts(&mut self, cmd: &LizCommand) -> BlueBirdResponse {
@@ -189,12 +189,12 @@ impl Flute {
             match UserSheet::import_from(file) {
                 Ok(sheet) => {
                     sheet.transform_to_db(&mut self.music_sheet);
-                },
+                }
                 Err(e) => {
                     let err_str = format!("Failed to import file {}: {}", file, e);
                     eprintln!("Export Shortcuts: {}", err_str);
                     failed_paths.push(file.clone());
-                },
+                }
             }
         }
         if failed_paths.is_empty() {
@@ -205,7 +205,6 @@ impl Flute {
                 results: failed_paths,
             }
         }
-        
     }
 
     fn command_get_shortcuts(&self, _cmd: &LizCommand) -> BlueBirdResponse {
@@ -342,34 +341,73 @@ impl Flute {
         }
     }
 
-    fn command_reload(&mut self, cmd: &LizCommand) -> BlueBirdResponse {
-        let user_data_path: &String;
+    fn command_update_rhythm(&mut self, cmd: &LizCommand) -> BlueBirdResponse {
         if cmd.args.is_empty() {
-            user_data_path = &self.rhythm.user_sheets_path;
-        } else {
-            user_data_path = &cmd.args[0];
+            return BlueBirdResponse {
+                code: StateCode::BUG,
+                results: vec![format!("Settings is missing")]
+            }
         }
-        match UserSheet::import_from(&user_data_path) {
-            Ok(user_data) => {
-                user_data.transform_to_db(&mut self.music_sheet);
-                BlueBirdResponse::new()
-            }
-            Err(e) => {
-                eprintln!(
-                    "Failure: failed to import user data from: {}, error: {}",
-                    user_data_path, e
-                );
-                BlueBirdResponse {
-                    code: StateCode::FAIL,
-                    results: vec![
-                        "Failure:".to_string(),
-                        "Failed to import:".to_string(),
-                        user_data_path.to_string(),
-                    ],
+
+        let new_rhythm = parse_rhythm(&cmd.args[0]);
+        match new_rhythm {
+            Ok(new_rhythm) => {
+                let saved_path = new_rhythm.save_rhythm(None); // Save to the default path
+                self.rhythm = new_rhythm;
+                match saved_path {
+                    Ok(saved_path) => BlueBirdResponse {
+                        code: StateCode::OK,
+                        results: vec![saved_path]
+                    },
+                    Err(e) => {
+                        let err_msg = format!("Failed to save rhythm to {}\nError: {}", &cmd.args[0], e);
+                        BlueBirdResponse {
+                        code: StateCode::FAIL,
+                        results: vec![err_msg]
+                        }
+                    }
                 }
-            }
+                
+            },
+            Err(e) => {
+                let err_msg = format!("Failed to parse rhythm: {}\nError: {}", cmd.args[0], e);
+                eprint!("{}", err_msg);
+                BlueBirdResponse {
+                    code: StateCode::BUG,
+                    results: vec![err_msg]
+                }
+            },
         }
     }
+
+    // fn command_reload(&mut self, cmd: &LizCommand) -> BlueBirdResponse {
+    //     let user_data_path: &String;
+    //     if cmd.args.is_empty() {
+    //         user_data_path = &self.rhythm.user_sheets_path;
+    //     } else {
+    //         user_data_path = &cmd.args[0];
+    //     }
+    //     match UserSheet::import_from(&user_data_path) {
+    //         Ok(user_data) => {
+    //             user_data.transform_to_db(&mut self.music_sheet);
+    //             BlueBirdResponse::new()
+    //         }
+    //         Err(e) => {
+    //             eprintln!(
+    //                 "Failure: failed to import user data from: {}, error: {}",
+    //                 user_data_path, e
+    //             );
+    //             BlueBirdResponse {
+    //                 code: StateCode::FAIL,
+    //                 results: vec![
+    //                     "Failure:".to_string(),
+    //                     "Failed to import:".to_string(),
+    //                     user_data_path.to_string(),
+    //                 ],
+    //             }
+    //         }
+    //     }
+    // }
 
     /// Execute the shortcut of given id
     fn _execute(&mut self, id_str: &str) -> Result<(), FluteExecuteError> {
@@ -450,14 +488,15 @@ impl Flute {
         let r: &Rhythm = &self.rhythm;
         BlueBirdResponse {
             code: StateCode::OK,
-            results: r.to_pretty_vec(),
+            results: r.to_string_list(),
         }
     }
 
     fn command_default(&self, cmd: &LizCommand) -> BlueBirdResponse {
+        eprint!("Invalid Cmd: {:#?}", cmd);
         BlueBirdResponse {
-            code: StateCode::FAIL,
-            results: vec![cmd.action.to_string(), "Invalid".to_string()],
+            code: StateCode::BUG,
+            results: vec![format!("Invalid Liz Cmd: {}", cmd.action)],
         }
     }
 }

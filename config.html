@@ -28,7 +28,6 @@
                                 <th>App</th>
                                 <th>Description</th>
                                 <th>Command</th>
-                                <!-- <th>Comment</th> -->
                                 <th>Hit</th>
                             </tr>
                         </thead>
@@ -38,19 +37,25 @@
                     </table>
                 </div>
             </div>
-            <div id="edit-modal" class="hidden">
+            <div id="edit-modal" class="hidden edit-panel">
                     <label>App Name:    <input type="text" id="edit-app"></label>
                     <label>Description: <input type="text" id="edit-desc"></label>
                     <label>Command:     <input type="text" id="edit-command"></label>
                     <label>Comment:     <textarea id="edit-comment" rows="4"></textarea></label>
                     <label>Hit Number:  <input type="number" id="edit-hit"></label>
-                    <div id="save-cancel">
-                        <button id="save-edit">Save</button>
-                        <button id="cancel-edit">Cancel</button>
+                    <div id="save-cancel" class="save-cancel-container">
+                        <button id="save-edit" class="save-button">Save</button>
+                        <button id="cancel-edit" class="cancel-button">Cancel</button>
                     </div>
             </div>
             <div id="settings-section" class="hidden">
-                <p>Settings content here...</p>
+                <div id="settings-container" class="edit-panel">
+                    <!-- Rhythm setting items -->
+                </div>
+                <div id="save-reset" class="save-cancel-container">
+                    <button id="save-rhytm" class="save-button">Save</button>
+                    <button id="reset-rhytm" class="cancel-button">Reset</button>
+                </div>
             </div>
         </div>
 

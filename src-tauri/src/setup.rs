@@ -5,7 +5,7 @@ use tauri::{
 };
 
 use crate::{
-    flute::{Flute, LizCommand},
+    flute::Flute,
     tools::{db::MusicSheetDB, rhythm::Rhythm},
 };
 use std::io;
@@ -48,6 +48,7 @@ fn handle_menu_events(app: &AppHandle, event: &MenuEvent) {
         "config" => {
             println!("config menu item was clicked");
             let path = PathBuf::from("config.html");
+            println!("{:?}", path);
             if let Err(e) =
                 tauri::WebviewWindowBuilder::new(app, "config", tauri::WebviewUrl::App(path))
                     .decorations(false)
@@ -57,10 +58,15 @@ fn handle_menu_events(app: &AppHandle, event: &MenuEvent) {
                     .min_inner_size(500.0, 200.0)
                     .build()
             {
-                println!(
-                    "handle_menu_events: Failed to create Config Panel window: {}",
-                    e
-                );
+                let view = app.get_webview_window("config");
+                if view.is_none() {
+                    println!(
+                        "handle_menu_events: Failed to create Config Panel window: {}",
+                        e
+                    );
+                } else {
+                    let _ = view.unwrap().show();
+                }
             }
         }
         "persist" => {
@@ -77,19 +83,19 @@ fn handle_menu_events(app: &AppHandle, event: &MenuEvent) {
             }
         }
         "reload" => {
-            println!("Reload data from sheets");
-            match app.state::<Mutex<Flute>>().lock() {
-                Ok(mut flute) => {
-                    let response = flute.play(&LizCommand {
-                        action: "reload".to_string(),
-                        args: vec![],
-                    });
-                    println!("Reload response: {:?}", response);
-                }
-                Err(e) => {
-                    eprintln!("Failed to lock Flute because: {}", e);
-                }
-            }
+            println!("Reload data of Liz");
+            // match app.state::<Mutex<Flute>>().lock() {
+            //     Ok(mut flute) => {
+            //         let response = flute.play(&LizCommand {
+            //             action: "reload".to_string(),
+            //             args: vec![],
+            //         });
+            //         println!("Reload response: {:?}", response);
+            //     }
+            //     Err(e) => {
+            //         eprintln!("Failed to lock Flute because: {}", e);
+            //     }
+            // }
             let _ = app.emit("fetch-again", "");
         }
         "quit" => {

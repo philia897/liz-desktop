@@ -1,6 +1,6 @@
 [package]
 name = "liz"
-version = "0.1.0"
+version = "0.1.1"
 description = "Liz: A cross-platform shortcut helper and auto-executor"
 authors = ["philia897"]
 edition = "2021"
@@ -27,6 +27,7 @@ toml = "0.8"
 clap = { version = "4.5.30", features = ["derive"] }
 uuid = { version = "1.15.1", features = ["v4"] }
 tauri-plugin-dialog = "2"
+tauri-plugin-process = "2"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-global-shortcut = "2"

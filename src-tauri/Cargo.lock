@@ -2177,7 +2177,7 @@ checksum = "4ee93343901ab17bd981295f2cf0026d4ad018c7c31ba84549a4ddbb47a45104"
 
 [[package]]
 name = "liz"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "clap",
  "enigo",
@@ -2188,6 +2188,7 @@ dependencies = [
  "tauri-plugin-dialog",
  "tauri-plugin-global-shortcut",
  "tauri-plugin-opener",
+ "tauri-plugin-process",
  "tauri-plugin-single-instance",
  "toml 0.8.20",
  "uuid",
@@ -4159,6 +4160,16 @@ dependencies = [
  "url",
  "windows",
  "zbus",
+]
+
+[[package]]
+name = "tauri-plugin-process"
+version = "2.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "40cc553ab29581c8c43dfa5fb0c9d5aee8ba962ad3b42908eea26c79610441b7"
+dependencies = [
+ "tauri",
+ "tauri-plugin",
 ]
 
 [[package]]

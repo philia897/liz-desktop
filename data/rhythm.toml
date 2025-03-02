@@ -5,9 +5,6 @@
 # Path of Liz data directory (the config folder)
 #liz_path = "/path/to/liz/config/folder"  # Replace with actual path if needed
 
-# Path for all the user shortcut sheets
-#user_sheets_path = "/path/to/liz/config/folder/sheets"  # Default is `<liz_path>/sheets`
-
 # Path for the lock file for Bluebird (music sheet)
 #music_sheet_path = "/path/to/liz/config/folder/music_sheet.lock"  # Default is `<liz_path>/music_sheet.lock`
 

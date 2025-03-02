@@ -3,6 +3,7 @@ use std::{process::exit, sync::Mutex};
 use clap::Parser;
 use setup::create_flute;
 use tauri::{AppHandle, Emitter, Manager, RunEvent};
+use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 
 mod flute;
 mod setup;
@@ -33,7 +34,8 @@ fn execute_cmd(cmd: LizCommand, app: &AppHandle) -> BlueBirdResponse {
 #[tauri::command]
 fn send_command(cmd: LizCommand, app: AppHandle) -> BlueBirdResponse {
     match cmd.action.as_str() {
-        "reload" | "create_shortcuts" | "update_shortcuts" | "delete_shortcuts" | "import_shortcuts" => {
+        "reload" | "create_shortcuts" | "update_shortcuts" | "delete_shortcuts"
+        | "import_shortcuts" => {
             let resp: BlueBirdResponse = execute_cmd(cmd, &app);
             let _ = app.emit("fetch-again", "");
             resp
@@ -65,6 +67,7 @@ pub fn run() {
     let args = Args::parse();
 
     let mut builder = tauri::Builder::default()
+        .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_dialog::init())
         // .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_opener::init());
@@ -99,6 +102,12 @@ pub fn run() {
             let _ = setup::setup_tray(app);
             if let Err(e) = setup::register_trigger_shortcut(app, trigger_shortcut.as_str()) {
                 eprintln!("Failed to register trigger shortcut: {}", e);
+                app.dialog()
+                    .message(format!{"Failed to register trigger shortcut: {}\nPlease use another one!", trigger_shortcut})
+                    .kind(MessageDialogKind::Info)
+                    .title("Information")
+                    .buttons(MessageDialogButtons::OkCustom("OK".to_owned()))
+                    .show(|_r| { });
             }
             Ok(())
         })
