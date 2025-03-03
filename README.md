@@ -1,5 +1,6 @@
 <div align="center">
   <img src="assets/icon_1024.png" width="100"/>
+  <h2>Remember and Execute shortcuts for you</h2>
 </div>
 
 # liz-desktop
@@ -33,16 +34,11 @@ A Rust-based shortcut helper to remember, customize and autorun shortcuts or com
 
 Please check the [release](https://github.com/philia897/liz-desktop/releases) and download the packages to install.
 
-In the first run, Liz will create its data dir `liz_path` automatically with the default config path, which will be:
-
-- **Windows:** `%APPDATA%\liz`, such as: `C:\Users\<YourUsername>\AppData\Roaming\liz`
-- **Linux:** `$HOME/.config/liz`, such as: `/home/<YourUsername>/.config/liz`
-
-> It can also be customized by setting the environment variable `LIZ_DATA_DIR`.
+> Arch [AUR](https://aur.archlinux.org/packages/liz-desktop-bin): `paru -S liz-desktop-bin`
 
 ### Quick Start
 
- - Download examples [here](./data/sheets/).
+ - Download shortcut sheet examples [here](./data/sheets/).
  - Open the config panel via tray menu `Config`. Right click the table to `Import` the downloaded json sheets.
  - Click tray menu `Show` to activate Liz and enjoy.
 
@@ -77,11 +73,17 @@ You can control the Liz configuration via any of the following ways:
 
 > Please create an issue if encounter any bug or error
 
-- To reset settings to default, simply delete the file `<liz_path>/rhythm.toml`, or clear the values in the config panel.
+In the first run, Liz will create its data dir `liz_path` automatically with the default config path, which will be:
+
+- **Windows:** `%APPDATA%\liz`, such as: `C:\Users\<YourUsername>\AppData\Roaming\liz`
+- **Linux:** `$HOME/.config/liz`, such as: `/home/<YourUsername>/.config/liz`
+
+> It can also be customized by setting the environment variable `LIZ_DATA_DIR`.
+
+To reset settings to default, simply delete the file `<liz_path>/rhythm.toml`, or clear the values in the config panel.
 
 ## Future plan
 
-- Add Arch support (Already created a repo but have not fully test the PKGBUILD)
 - Add Mac support (It theoretically works, but I have not tested it yet. No Mac equipment)
 - Using tauri plugins to remember window position and size.
 - Using tauri plugin for logging.
