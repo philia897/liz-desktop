@@ -22,7 +22,8 @@ A Rust-based shortcut helper to remember, customize and autorun shortcuts or com
     - Hybrid: `esc [STR]+ Liz and the Blue Bird`
 - **Dark/Light mode:** Following the system
 - **Dynamic rank:** rank the shortcuts according to the frequency. The most frequently used shortcuts will be on the top.
-- **Customization:** Support adding/importing/sharing/managing the shortcuts via json files.
+- **Shortcut manager:** Has a builtin pretty config panel for managing shortcuts
+- **Import/Export:** Support importing/exporting the shortcuts via json/txt files.
 
 > You can see an example of **sheet** [here](./data/sheets/examples.json), which denotes the json file that defines a bunch of shortcuts. In the example it shows how to add different types of shortcut commands. In the `data/sheets` you can find other sheets I created and feel free to have a try.
 
@@ -37,58 +38,31 @@ In the first run, Liz will create its data dir `liz_path` automatically with the
 - **Windows:** `%APPDATA%\liz`, such as: `C:\Users\<YourUsername>\AppData\Roaming\liz`
 - **Linux:** `$HOME/.config/liz`, such as: `/home/<YourUsername>/.config/liz`
 
-> It can also be customized by setting the environment variable: `LIZ_DATA_DIR`
+> It can also be customized by setting the environment variable `LIZ_DATA_DIR`.
 
 ### Quick Start
 
-After installation and start the application, you should see an blank list of shortcuts.
+ - Download examples [here](./data/sheets/).
+ - Open the config panel via tray menu `Config`. Right click the table to `Import` the downloaded json sheets.
+ - Click tray menu `Show` to activate Liz and enjoy.
 
-Following the [example](./data/sheets/examples.json) to create your own `sheet` or copy the examples [here](./data/sheets/). Put the sheets under `<liz_path>/sheets`. If the folder does not exists, create it.
+> You can use a `trigger_shortcut` to `Show` liz as well, the shortcut is `Ctrl+Alt+L` by default.
 
-Then right click the tray and click `Reload` to load the sheets in `<liz_path>/sheets`. click `Show` to see the loaded shortcut list.
+> The tray menu also have `Persist`, which will persist the data to a .lock file immediately. Liz will auto persist when the program exits.
 
-You can use a `trigger_shortcut` to `Show` liz as well, the shortcut is `Ctrl+Alt+L` by default.
-
-> Liz will not reload the sheets stored in `<liz_path>/sheets` until user click `Reload`.
-
-> The tray manu also have `Persist`, which will persist the data to a .lock file immediately. Liz will auto persist when the program exits.
+> Tray menu option `Reload` means reload Liz main view if shortcuts are not added to Liz correctly.
 
 ### Configuration
 
-Liz has these configuration options:
-
-- **`liz_path:`**  
-  _Path of Liz data directory_  
-  This is the main directory where Liz stores its data. By default, it's set to the application’s config folder, explained above.
-
-- **`user_sheets_path:`**  
-  _Path for all the shortcut sheets_  
-  This is the directory where user-defined shortcut sheets are stored. The default path is `<liz_path>/sheets`.
-
-- **`music_sheet_path:`**  
-  _Path for the lock file for Bluebird_  
-  The file used as the lock file for Liz, performs as a database. The default path is `<liz_path>/music_sheet.lock`.
-
-- **`keymap_path:`**  
-  _Path to the keymap file_  
-  The path to the keymap configuration file. This file stores the customized key mappings for the application. The default path is `<liz_path>/keymap_builtin.json`.
-
-- **`interval_ms:`**  
-  _Interval for each shortcut block (in milliseconds)_  
-  This is the time interval (in milliseconds) for each shortcut block. Normally, you don't need to change this. The default value is **100 milliseconds**.
-
-- **`trigger_shortcut:`**  
-  _Shortcut key to trigger a specific action_  
-  This is the default keyboard shortcut used to trigger `Show` in Liz. By default, it is set to `Ctrl+Alt+L`.
-
 You can control the Liz configuration via any of the following ways:
 
-- write a `rhythm.toml` file following this [example](./data/rhythm.toml) and use it by `liz -c /path/to/your/rhythm.toml`.
+- (Recommand) Use the builtin Config panel: Click the top-left button and choose `Settings`.
+
+- write your own `rhythm.toml` file following this [example](./data/rhythm.toml) and use it by `liz -c /path/to/your/rhythm.toml`.
 
 - write a `rhythm.toml` file and put it under default `<liz_path>/rhythm.toml`. Liz will automatically use it.
 
-
-> According to the [doc of enigo](https://github.com/enigo-rs/enigo#), For linux users you'd better to install these tools for X11 support:
+> According to the [doc of enigo](https://github.com/enigo-rs/enigo#), For Linux users you'd better to install these tools for X11 support:
 > 
 > Debian-based: `apt install libxdo-dev`
 >
@@ -99,13 +73,14 @@ You can control the Liz configuration via any of the following ways:
 > Gentoo: `emerge -a xdotool`
 
 
+## TroubleShooting
 
+> Please create an issue if encounter any bug or error
 
-
+- To reset settings to default, simply delete the file `<liz_path>/rhythm.toml`, or clear the values in the config panel.
 
 ## Future plan
 
-- Add a control panel for app settings and shortcut management.
 - Add Arch support (Already created a repo but have not fully test the PKGBUILD)
 - Add Mac support (It theoretically works, but I have not tested it yet. No Mac equipment)
 - Using tauri plugins to remember window position and size.

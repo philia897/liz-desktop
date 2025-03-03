@@ -60,7 +60,7 @@ function getSettingsJson(): Record<string, string | number> {
             if (value) {
                 // Convert to number if it's a valid numeric value, otherwise keep as string
                 settingsObj[label.id] = isNaN(Number(value)) ? value : Number(value);
-            }
+            }  // If value is missing, the backend will reset it to default value.
         }
     });
 

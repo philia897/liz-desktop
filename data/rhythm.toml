@@ -2,20 +2,35 @@
 
 # Only uncomment the settings you need.
 
-# Path of Liz data directory (the config folder)
-#liz_path = "/path/to/liz/config/folder"  # Replace with actual path if needed
+# The main directory where Liz stores its data. 
+# By default, it's set to the application’s config folder
+# **Windows:** `%APPDATA%\liz`, such as: `C:\Users\<YourUsername>\AppData\Roaming\liz`
+# **Linux:** `$HOME/.config/liz`, such as: `/home/<YourUsername>/.config/liz`
+# Replace with actual path if needed
+#liz_path = "/path/to/liz/config/folder"
 
 # Path for the lock file for Bluebird (music sheet)
-#music_sheet_path = "/path/to/liz/config/folder/music_sheet.lock"  # Default is `<liz_path>/music_sheet.lock`
+# The file used as the lock file for Liz, performs as a database. 
+# Default is `<liz_path>/music_sheet.lock`
+#music_sheet_path = "/path/to/liz/config/folder/music_sheet.lock"
 
 # Path to the keymap file
-#keymap_path = "/path/to/liz/config/folder/keymap_builtin.json"  # Default is `<liz_path>/keymap_builtin.json`
+# The path to the keymap configuration file. This file stores the customized key mappings for the application.
+# Default is `<liz_path>/keymap_builtin.json`
+#keymap_path = "/path/to/liz/config/folder/keymap_builtin.json"
 
 # The interval of each shortcut block (in milliseconds)
-#interval_ms = 100  # Default is 100 milliseconds
+#  This is the time interval (in milliseconds) for each shortcut block. 
+# Normally, you don't need to change this. 
+# The default value is **100 milliseconds**.
+#interval_ms = 100
 
 # Shortcut key to trigger a specific action
-#trigger_shortcut = "Ctrl+Alt+L"  # Default is "Ctrl+Alt+L"
+# The keyboard shortcut used to trigger `Show` in Liz. 
+# Default is "Ctrl+Alt+L"
+#trigger_shortcut = "Ctrl+Alt+L"
 
 # The format to show one shortcut
+# Shortcut in Liz will be shown in the defined format, can be customized via html style
+# Default is "<b>#description</b> | #application | #shortcut"
 #shortcut_print_fmt = "<b>#description</b> | #application | #shortcut"
