@@ -1,0 +1,1124 @@
+[
+  {
+    "description": "(Universal) Cancels Blender functions without changes",
+    "shortcut": "esc",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Open the toolbox",
+    "shortcut": "space",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Start or quit edit mode",
+    "shortcut": "tab",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Loads a Blender file, changes the window to a file window",
+    "shortcut": "f1",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Appends parts from other files, or loads as library data",
+    "shortcut": "shift+f1",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Writes a Blender file, changes the window to a file window",
+    "shortcut": "f2",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Exports the scene as a DXF file",
+    "shortcut": "shift+f2",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Exports the scene as a VRML1 file",
+    "shortcut": "ctrl+f2",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Writes a picture, if a picture has been rendered, and the file format is as indicated in the display buttons",
+    "shortcut": "f3",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Saves a screen dump of the active window",
+    "shortcut": "ctrl+f3",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Saves a screen dump of the whole Blender screen",
+    "shortcut": "ctrl+shift+f3",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Displays the logic context",
+    "shortcut": "f4",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Displays the shading context, light, material, or world sub-contexts",
+    "shortcut": "f5",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Displays the shading context and texture sub-context",
+    "shortcut": "f6",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Displays the object context",
+    "shortcut": "f7",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Displays the shading context and world sub-context",
+    "shortcut": "f8",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Displays the editing context",
+    "shortcut": "f9",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Displays the scene context",
+    "shortcut": "f10",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Hides or shows the render window",
+    "shortcut": "f11",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Starts the rendering from the active camera",
+    "shortcut": "f12",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Go to the previous frame",
+    "shortcut": "left",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Go to the first frame",
+    "shortcut": "shift+left",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Go to the next frame",
+    "shortcut": "right",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Go to the last frame",
+    "shortcut": "shift+right",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Go forward 10 frames",
+    "shortcut": "up",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Go back 10 frames",
+    "shortcut": "down",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Change the current Blender window to animation playback mode, the cursor changes to a counter",
+    "shortcut": "alt+a",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Change the current window and all 3D windows to animation playback mode",
+    "shortcut": "alt+shift+a",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Insert key menu, this menu differs from window to window",
+    "shortcut": "i",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Toggle the render buffers",
+    "shortcut": "j",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Opens the last saved file",
+    "shortcut": "ctrl+o",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Quit Blender",
+    "shortcut": "q",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Timer menu, this menu offers access to information about drawing speed",
+    "shortcut": "ctrl+alt+t",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Save user defaults, current project settings are written to the default file that will be loaded every time you start Blender",
+    "shortcut": "ctrl+u",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Write file without opening a file window",
+    "shortcut": "ctrl+w",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Write videoscape file",
+    "shortcut": "alt+w",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Erase everything except the render buffer, the default scene is reloaded",
+    "shortcut": "ctrl+x",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Redo",
+    "shortcut": "ctrl+y",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Undo",
+    "shortcut": "ctrl+z",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Universal) Redo",
+    "shortcut": "ctrl+shift+z",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) All objects in the visible layer are displayed completely, centered in the window",
+    "shortcut": "home",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Select the next object key, if more than one is selected the selection is shifted up cyclically",
+    "shortcut": "pgup",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Add to selection the next object key",
+    "shortcut": "shift+pgup",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Select the previous object key, if more than one is selected the selection is shifted up cyclically",
+    "shortcut": "pgdn",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Adds to selection the previous object key",
+    "shortcut": "shift+pgdn",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Select all layers",
+    "shortcut": "<code>\\</code>",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Revert to the previous layer setting",
+    "shortcut": "shift+<code>\\</code>",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Start or stop edit mode",
+    "shortcut": "tab",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Selects or deselects all",
+    "shortcut": "a",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Apply size and rotation",
+    "shortcut": "ctrl+a",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) If the active object is automatically duplicated, brings up a menu for actually creating the objects",
+    "shortcut": "ctrl+shift+a",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Brings up the add menu, the toolbox items that start with ADD",
+    "shortcut": "shift+a",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Border select, draws a rectangle with the left mouse to select objects",
+    "shortcut": "b",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Render border, this only works in camera view mode",
+    "shortcut": "shift+b",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Center view, the position of the 3D cursor becomes the new center of the 3D window",
+    "shortcut": "c",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Convert menu, depending on the active object a popup menu is displayed enabling you to convert certain types of ObData",
+    "shortcut": "alt+c",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Copy menu, this menu copies information from the active object to selected objects",
+    "shortcut": "ctrl+c",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Center zero view, the 3D cursor is set to zero and the view is changed so all objects can be displayed",
+    "shortcut": "shift+c",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Display draw mode menu",
+    "shortcut": "d",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Add duplicate, the selected objects are duplicated",
+    "shortcut": "shift+d",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Add linked duplicate, linked duplicates of the selected objects are created",
+    "shortcut": "alt+d",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Draw the texture image as wire",
+    "shortcut": "ctrl+d",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Start or stop edit mode",
+    "shortcut": "alt+e",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) If selected object is a mash, toggles face select mode on or off",
+    "shortcut": "f",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Sort faces, the faces of the active mesh object are sorted based on the current view in the 3D window",
+    "shortcut": "ctrl+f",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Grab mode, or translation mode",
+    "shortcut": "g",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Clears translations, given in grab mode",
+    "shortcut": "alt+g",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Group selection",
+    "shortcut": "shift+g",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Insert object key, a keyposition is inserted in the current frame of all selected objects",
+    "shortcut": "i",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Join objects, all selected objects of the same type are added to the active object",
+    "shortcut": "ctrl+j",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Show keys, the draw key option is turned on for all selected objects",
+    "shortcut": "k",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Display popup menu for showing and selecting all keys",
+    "shortcut": "shift+k",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Makes selected object local, makes library linked objects local for the current scene",
+    "shortcut": "l",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Link selected, links some of the active object data to all selected objects",
+    "shortcut": "ctrl+l",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Select linked, selected all objects somehow linked to the active object",
+    "shortcut": "shift+l",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Move selected objects to another layer",
+    "shortcut": "m",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Mirror menu, it is possible to mirror an object along the X, Y, or Z axis",
+    "shortcut": "ctrl+m",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Number panel, the location, rotation, and scaling of the active object are displayed and can be modified",
+    "shortcut": "n",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Clear origin, the origin is erased for all child objects, which causes them to move ot the exact location of the parent objects",
+    "shortcut": "alt+o",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) If the selected object is a mesh, toggles the subsurf on or off",
+    "shortcut": "shift+o",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Make selected objects the children of the active object",
+    "shortcut": "ctrl+p",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Clears parent relation, user is asked if they wish to keep or clear parent-induced transforms",
+    "shortcut": "alt+p",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Rotate mode, works on selected objects",
+    "shortcut": "r",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Clears rotation, the X, Y, and Z rotations of selected objects are set to zero",
+    "shortcut": "alt+r",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Size mode or scaling mode, works on selected objects",
+    "shortcut": "s",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Clears size, the X, Y, and Z dimensions of selected objects are set to 1",
+    "shortcut": "alt+s",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Opens the snap menu",
+    "shortcut": "shift+s",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Texture space mode, the position of dimensions of the texture space for the selected objects can be changed in the same manner for grab and size mode",
+    "shortcut": "t",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Makes selected objects track the active object",
+    "shortcut": "ctrl+t",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Clears old style track, constraint track is removed as all constrains are",
+    "shortcut": "alt+t",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Makes object single user, the inverse operation of link",
+    "shortcut": "u",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Switches in and out of vertex paint mode",
+    "shortcut": "v",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Object image aspect, this hotkey sets the X and Y dimensions of the selected objects in relation to the dimensions of the image texture they have",
+    "shortcut": "alt+v",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Opens the object booleans menu",
+    "shortcut": "w",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Deletes selected objects",
+    "shortcut": "x",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Toggles solid mode on or off",
+    "shortcut": "z",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Toggles shaded mode on or off",
+    "shortcut": "shift+z",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Object Mode) Toggles textured mode on or off",
+    "shortcut": "alt+z",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - General) Start or stop edit mode",
+    "shortcut": "tab",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - General) Start or stop edit mode (alternative)",
+    "shortcut": "alt+e",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - General) Switches between vertex select, edge select, and face select modes",
+    "shortcut": "ctrl+tab",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - General) Select or unselect all",
+    "shortcut": "a",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - General) Circle select",
+    "shortcut": "b+b",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - General) With vertices selected, this creates a hook object",
+    "shortcut": "ctrl+h",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - General) Number panel, simpler than the object mode one",
+    "shortcut": "n",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - General) Switch in and out of proportional editing",
+    "shortcut": "o",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - General) Toggles between smooth and sharp proportional editing",
+    "shortcut": "shift+o",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - General) Separate, you can choose to make a new object with all selected vertices, edges, faces, and curves",
+    "shortcut": "p",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - General) Make vertex parent",
+    "shortcut": "ctrl+p",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - General) Shear, in edit mode this operation enables you to make selected forms slant",
+    "shortcut": "ctrl+s",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - General) Undo",
+    "shortcut": "u",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - General) Displays specials popup menu",
+    "shortcut": "w",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - General) Warp, selected vertices can be bent into curves with this option",
+    "shortcut": "shift+w",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Adds to selection all vertices connected by an edge to an already selected vertex",
+    "shortcut": "ctrl++",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Removes from selection all vertices of the outer ring of selected vertices",
+    "shortcut": "ctrl+-",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) If using curve deformation, toggles the curve cyclic mode on or off",
+    "shortcut": "c",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Extrude selected",
+    "shortcut": "e",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Crease subsurf edge",
+    "shortcut": "shift+e",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Mark LSCM seam",
+    "shortcut": "ctrl+e",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Make edge or face",
+    "shortcut": "f",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Fill selected, all selected vertices that are bound by edges and form a closed polygon are filled with triangular faces",
+    "shortcut": "shift+f",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Beauty fill, edges of all selected triangular faces are switched so equally sized faces are formed",
+    "shortcut": "alt+f",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Flip faces, selected triangular faces are paired and common edge of each pair swapped",
+    "shortcut": "ctrl+f",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Hide selected, all selected vertices and faces are hidden",
+    "shortcut": "h",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Hide not selected, all non-selected vertices and faces are hidden",
+    "shortcut": "shift+h",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Reveal, all hidden vertices and faces are drawn again",
+    "shortcut": "alt+h",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Join faces, selected triangular faces are joined in pairs and transformed to quads",
+    "shortcut": "alt+j",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Knife tool menu",
+    "shortcut": "k",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Select linked",
+    "shortcut": "l",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Deselect linked",
+    "shortcut": "shift+l",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Select linked selected",
+    "shortcut": "ctrl+l",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Mirror, opens a popup asking for the axis to mirror",
+    "shortcut": "m",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Merges selected vertices as barycentrum or at cursor depending on selection made on popup",
+    "shortcut": "alt+m",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Calculate normals outside",
+    "shortcut": "ctrl+n",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Calculate normals inside",
+    "shortcut": "ctrl+shift+n",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Scales each vertex in the direction of its local normal",
+    "shortcut": "alt+s",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Make triangles, all selected faces are converted to triangles",
+    "shortcut": "ctrl+t",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Undo",
+    "shortcut": "u",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Redo",
+    "shortcut": "shift+u",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Undo menu",
+    "shortcut": "alt+u",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Special menu",
+    "shortcut": "w",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Erase selected",
+    "shortcut": "x",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Mesh) Split, this command splits the selected part of a mesh without deleting faces",
+    "shortcut": "y",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Curve) Set the selected curves to cyclic or turn cyclic off",
+    "shortcut": "c",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Curve) Extrude curve",
+    "shortcut": "e",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Curve) Add segment, a segment is added between two selected vertices at the end of two curves",
+    "shortcut": "f",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Curve) Toggle handle align or free",
+    "shortcut": "h",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Curve) Set handle to auto",
+    "shortcut": "shift+h",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Curve) Calculate handles",
+    "shortcut": "ctrl+h",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Curve) Select linked",
+    "shortcut": "l",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Curve) Deselect linked",
+    "shortcut": "shift+l",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Curve) Mirror selected control points exactly as for vertices in a mesh",
+    "shortcut": "m",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Curve) Tilt mode, specify an extra axis rotation for each vertex in a 3D curve",
+    "shortcut": "t",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Curve) Clear tilt",
+    "shortcut": "alt+t",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Curve) Vector handle",
+    "shortcut": "v",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Curve) The special menu for curves appears",
+    "shortcut": "w",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Curve) Erase selected",
+    "shortcut": "x",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Surface) Toggle cyclic menu",
+    "shortcut": "c",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Surface) Extrude selected",
+    "shortcut": "e",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Surface) Add segment, a segment is added between two selected vertices at the end of two curves",
+    "shortcut": "f",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Surface) Select linked",
+    "shortcut": "l",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Surface) Deselect linked",
+    "shortcut": "shift+l",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Surface) Mirror selected control points exactly as for vertices in a mesh",
+    "shortcut": "m",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Surface) Select row, starting with the last selected vertex",
+    "shortcut": "shift+r",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Surface) The special menu for surfaces appears",
+    "shortcut": "w",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Surface) Erase selected",
+    "shortcut": "x",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Font) Move text cursor one position forward",
+    "shortcut": "right",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Font) Move text cursor to the end of the line",
+    "shortcut": "shift+right",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Font) Move text cursor one position backwards",
+    "shortcut": "left",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Font) Move text cursor to the start of the line",
+    "shortcut": "shift+left",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Font) Move text cursor one line forward",
+    "shortcut": "down",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Font) Move text cursor to the end of the text",
+    "shortcut": "shift+down",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Font) Move text cursor one line back",
+    "shortcut": "up",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Font) Move text cursor to the beginning of the text",
+    "shortcut": "shift+up",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Font) Reload original data",
+    "shortcut": "alt+u",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(Edit Mode - Font) Paste text",
+    "shortcut": "alt+v",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(VertexPaint) All vertex colors are erased, they are changed to the current drawing color",
+    "shortcut": "shift+k",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(VertexPaint) Undo, press twice redos the undone",
+    "shortcut": "u",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(VertexPaint) Shared vertexcol, the colors of all faces that share vertices are blended",
+    "shortcut": "w",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(UV Editor) LSCM unwrapping, launches on the faces visible in the UV editor",
+    "shortcut": "e",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(UV Editor) Pin selected vertices, they will stay in place on the UV editor when executing an LSCM unwrap",
+    "shortcut": "p",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(UV Editor) Un-pin selected vertices",
+    "shortcut": "alt+p",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(FaceSelect) Switches to edit mode",
+    "shortcut": "tab",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(FaceSelect) With multiple, co-planar faces selected, this will merge them into one FGon so long as they remain co-planar",
+    "shortcut": "f",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(FaceSelect) Select linked UVs",
+    "shortcut": "l",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(FaceSelect) Calls a menu allowing to rotate the UV coordinates or the vertex col",
+    "shortcut": "r",
+    "application": "Blender",
+    "comment": ""
+  },
+  {
+    "description": "(FaceSelect) Calls the UV Calculation menu",
+    "shortcut": "u",
+    "application": "Blender",
+    "comment": ""
+  }
+]

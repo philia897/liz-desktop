@@ -28,6 +28,8 @@ A Rust-based shortcut helper to remember, customize and autorun shortcuts or com
 
 > You can see an example of **sheet** [here](./data/sheets/examples.json), which denotes the json file that defines a bunch of shortcuts. In the example it shows how to add different types of shortcut commands. In the `data/sheets` you can find other sheets I created and feel free to have a try.
 
+> This [Python script](./scripts/parse_shortcuts.py) can parse Keyboard Shortcuts in [cheatsheets.zip](https://cheatsheets.zip/), extract the shortcuts in the markdown file (click the github icon in the topbar to download the original markdown file), and generate the json file to be imported into Liz.
+
 ## Usage
 
 ### Installation
@@ -93,6 +95,6 @@ To reset settings to default, simply delete the file `<liz_path>/rhythm.toml`, o
 
 ## Credits & License
 
-- Thanks to the wonderful projects [Tauri 2.0](https://tauri.app/) and [Enigo](https://github.com/enigo-rs/enigo).
+- Thanks to the wonderful projects [Tauri 2.0](https://tauri.app/), [Enigo](https://github.com/enigo-rs/enigo) and [Reference](https://github.com/Fechin/reference/tree/main).
 - License: [GPL-3](./LICENSE)
 
