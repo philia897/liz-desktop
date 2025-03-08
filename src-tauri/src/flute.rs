@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::tools::{
     db::{MusicSheetDB, Shortcut, UserSheet},
-    exec::execute_shortcut_enigo,
+    exec::{convert_shortcut_to_keycode, execute_shortcut_enigo},
     rhythm::{parse_rhythm, Rhythm},
     utils::{generate_id, id_to_string, string_to_id},
 };
@@ -420,24 +420,17 @@ impl Flute {
                         StateCode::BUG,
                     ));
                 }
-                let sc = sc.unwrap();
-                match sc.parse_to_keycode(&self.music_sheet.keymap) {
-                    Err(e) => {
-                        let err_str = format!("Failed to parse {}: {}", sc.shortcut, e);
-                        Err(FluteExecuteError::new(&err_str, StateCode::BUG))
-                    }
-                    Ok(keycode) => {
-                        println!("Execute: {}: {}", id_str, keycode);
-                        if let Err(e) = execute_shortcut_enigo(&keycode, self.rhythm.interval_ms) {
-                            let err_str =
-                                format!("Enigo fails to execute shortcut {}: {}", sc.shortcut, e);
-                            return Err(FluteExecuteError::new(&err_str, StateCode::FAIL));
-                        }
-                        let _ = self.music_sheet.hit_num_up(id);
-                        self.update_rank();
-                        Ok(())
-                    }
+                let sc: &Shortcut = sc.unwrap();
+                let keycode = convert_shortcut_to_keycode(&sc.shortcut, &self.music_sheet.keymap);
+                println!("Execute: {}: {}", id_str, keycode);
+                if let Err(e) = execute_shortcut_enigo(&keycode, self.rhythm.interval_ms) {
+                    let err_str =
+                        format!("Enigo fails to execute shortcut {}: {}", sc.shortcut, e);
+                    return Err(FluteExecuteError::new(&err_str, StateCode::FAIL));
                 }
+                let _ = self.music_sheet.hit_num_up(id);
+                self.update_rank();
+                Ok(())
             }
             Err(e) => {
                 let err_str = format!("BUG: Failed to parse ID {}: {}", id_str, e);
