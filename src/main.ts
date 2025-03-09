@@ -42,11 +42,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   let shortcuts: Shortcut[] = [];
   let shortcut_task: string = '';
   let selectedIndex = 0;
+
   const appWindow = getCurrentWindow();
 
   const shortcutListContainer = document.getElementById('shortcut-list') as HTMLUListElement;
   const searchResultsContainer = document.getElementById('search-results') as HTMLUListElement;
   const searchBar = document.getElementById('search') as HTMLInputElement;
+  const counter = document.getElementById("shortcut-counter") as HTMLSpanElement;
+
+  function updateCounter() {
+    const totalShortcuts = shortcutListContainer.children.length;
+    const filteredShortcuts = searchResultsContainer.style.display === "none" ? totalShortcuts : searchResultsContainer.children.length;
+    counter.textContent = `${filteredShortcuts} / ${totalShortcuts}`;
+  }
 
   // Set the searchbar to be active in the beginning
   if (searchBar) {
@@ -83,6 +91,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     shortcutListContainer.style.display = 'block';
     shortcutListContainer.scrollTop = 0;
+    updateCounter();
   }
 
   // Render the list of shortcuts
@@ -103,6 +112,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     listContainer.appendChild(fragment);
     selectedIndex = 0; // Reset selection on search input
+
+    updateCounter();
   }
 
   function addClickListener(ul: HTMLUListElement) {

@@ -52,21 +52,44 @@ body {
 }
 
 /* Search input box */
+/* Adjust container to align search input and counter properly */
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Space between search input and shortcut counter */
+  width: 100%;
+  padding: 5px 5px; /* Padding around the whole search bar */
+  border: 1px solid var(--input-border); /* Border for the entire container */
+  border-radius: 8px; /* Border radius for the whole container */
+  background-color: var(--input-bg); /* Background color for the entire container */
+  box-sizing: border-box; /* Ensure padding and border are included in width */
+}
+
+/* Search input box */
 #search {
   width: 100%;
-  padding: 15px;
+  padding: 10px;
   font-size: 16px;
-  border: 1px solid var(--input-border);
-  background-color: var(--input-bg);
   color: var(--text-color);
-  box-sizing: border-box;
-  border-radius: 8px;
+  border: none; /* Remove border from input */
+  background-color: transparent; /* Make input transparent to match the container background */
   outline: none;
   transition: border-color 0.3s ease-in-out;
 }
 
-#search:focus {
-  border-color: var(--highlight-color);
+.search-container:focus-within {
+  border-color: var(--highlight-color); /* Highlight color */
+}
+
+/* Shortcut counter */
+#shortcut-counter {
+  font-size: 16px;
+  color: var(--text-color);
+  white-space: nowrap;
+  min-width: 80px;
+  text-align: center;
+  background-color: transparent; /* Make counter transparent to match the container */
+  border: none; /* Remove border from counter */
 }
 
 /* Shortcut list container */
