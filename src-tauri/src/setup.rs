@@ -34,16 +34,7 @@ fn handle_menu_events(app: &AppHandle, event: &MenuEvent) {
     match event.id.as_ref() {
         "show" => {
             println!("show menu item was clicked");
-            if let Some(win) = app.get_webview_window("main") {
-                if let Err(e) = win.show() {
-                    println!("Failed to show the app, err: {}", e);
-                }
-                if let Err(e) = win.set_focus() {
-                    println!("Failed to focus the app, err: {}", e);
-                }
-            } else {
-                println!("handle_menu_events: Failed to get the app window");
-            }
+            create_or_open_main_window(app);
         }
         "config" => {
             println!("config menu item was clicked");
@@ -117,6 +108,52 @@ fn handle_menu_events(app: &AppHandle, event: &MenuEvent) {
     }
 }
 
+fn create_or_open_main_window(app: &AppHandle) {
+    if let Some(win) = app.get_webview_window("main") {
+        if let Err(e) = win.show() {
+            println!("Failed to show the app, err: {}", e);
+        }
+        if let Err(e) = win.set_focus() {
+            println!("Failed to focus the app, err: {}", e);
+        }
+    } else {
+        create_main_window(app);
+    }
+}
+
+fn create_main_window(app: &AppHandle) {
+    let app_handle: AppHandle = app.clone();
+    tauri::async_runtime::spawn(async move {
+        let path = std::path::PathBuf::from("index.html");
+        if let Err(e) = tauri::webview::WebviewWindowBuilder::new(
+            &app_handle,
+            "main",
+            tauri::WebviewUrl::App(path),
+        )
+        .decorations(false)
+        .transparent(true)
+        .center()
+        .inner_size(800.0, 600.0)
+        .min_inner_size(500.0, 200.0)
+        .build()
+        {
+            if let Some(win) = app_handle.get_webview_window("config") {
+                if let Err(e2) = win.show() {
+                    println!("Failed to show the app, err: {}", e2);
+                }
+                if let Err(e2) = win.set_focus() {
+                    println!("Failed to focus the app, err: {}", e2);
+                }
+            } else {
+                println!(
+                    "handle_menu_events: Failed to create Config Panel window: {}",
+                    e
+                );
+            }
+        }
+    });
+}
+
 /// Create Liz folder if not exist.
 fn create_liz_folder(liz_path: &str) -> io::Result<()> {
     let liz_folder = PathBuf::from(liz_path);
@@ -167,16 +204,7 @@ pub fn register_trigger_shortcut(
                 if shortcut == &trigger_sc {
                     match event.state() {
                         ShortcutState::Pressed => {
-                            if let Some(win) = app.get_webview_window("main") {
-                                if let Err(e) = win.show() {
-                                    println!("Failed to show the app, err: {}", e);
-                                }
-                                if let Err(e) = win.set_focus() {
-                                    println!("Failed to focus the app, err: {}", e);
-                                }
-                            } else {
-                                println!("handle_menu_events: Failed to get the app window");
-                            }
+                            create_or_open_main_window(app);
                         }
                         ShortcutState::Released => {}
                     }

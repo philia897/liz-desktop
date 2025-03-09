@@ -264,11 +264,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     } else {  // Ensure the window has truly lost focus and we have a valid `shortcut_task` to execute
       if (!shortcut_task) {
-        appWindow.hide()
-        resetView();
-        const ul = getActiveListContainer();
-        const items = ul.getElementsByTagName('li');
-        _updateSelection(items, 0);
+        // appWindow.hide()
+        // resetView();
+        // const ul = getActiveListContainer();
+        // const items = ul.getElementsByTagName('li');
+        // _updateSelection(items, 0);
+
+        await appWindow.close();
         return
       }
       try {
@@ -281,9 +283,11 @@ document.addEventListener('DOMContentLoaded', async () => {
           alert(`Failed to execute shortcut because ${response.results.join("; ")}`);
           console.log(`Failed to execute shortcut because ${response.results.join("; ")}`);
         }
+
+        await appWindow.close();
         // Reset view and fetch updated shortcuts
-        resetView();
-        fetchShortcuts();  // Fetch the shortcuts again, as their ranking could change
+        // resetView();
+        // fetchShortcuts();  // Fetch the shortcuts again, as their ranking could change
 
       } catch (error) {
         console.error("Error executing shortcut:", error);

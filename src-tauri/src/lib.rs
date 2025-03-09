@@ -116,8 +116,12 @@ pub fn run() {
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
         .run(|app_handle, e| match e {
-            RunEvent::ExitRequested { .. } => {
-                cleanup(app_handle);
+            RunEvent::ExitRequested { code, api,  .. } => {
+                if code.is_none() {
+                    api.prevent_exit();
+                } else {
+                    cleanup(app_handle);
+                }
             }
             _ => {}
         });
