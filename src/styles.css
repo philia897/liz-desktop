@@ -56,13 +56,17 @@ body {
 .search-container {
   display: flex;
   align-items: center;
-  gap: 10px; /* Space between search input and shortcut counter */
+  gap: 10px;
   width: 100%;
-  padding: 5px 5px; /* Padding around the whole search bar */
-  border: 1px solid var(--input-border); /* Border for the entire container */
-  border-radius: 8px; /* Border radius for the whole container */
-  background-color: var(--input-bg); /* Background color for the entire container */
+  padding: 5px 5px;
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  background-color: var(--input-bg);
   box-sizing: border-box; /* Ensure padding and border are included in width */
+}
+
+.search-container:focus-within {
+  border-color: var(--highlight-color);
 }
 
 /* Search input box */
@@ -71,14 +75,10 @@ body {
   padding: 10px;
   font-size: 16px;
   color: var(--text-color);
-  border: none; /* Remove border from input */
-  background-color: transparent; /* Make input transparent to match the container background */
+  border: none;
+  background-color: transparent;
   outline: none;
   transition: border-color 0.3s ease-in-out;
-}
-
-.search-container:focus-within {
-  border-color: var(--highlight-color); /* Highlight color */
 }
 
 /* Shortcut counter */

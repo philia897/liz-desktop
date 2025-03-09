@@ -1,5 +1,6 @@
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
 import { confirm, message, open, save } from '@tauri-apps/plugin-dialog'
 import { initialize_settings } from "./rhythm";
 
@@ -26,30 +27,6 @@ type Shortcut = {
     comment: string;
 };
 
-function searchTable(searchBox: HTMLInputElement, tableBody: HTMLTableSectionElement) {
-    const searchText = searchBox.value.toLowerCase();  // Get the search input and convert it to lowercase
-    const rows = tableBody.getElementsByTagName('tr');  // Get all rows in the table body
-
-    // Loop through each row
-    for (let row of rows) {
-        const cells = row.getElementsByTagName('td');
-        let matchFound = false;
-
-        // Loop through each cell in the row
-        for (let cell of cells) {
-            const cellText = cell.textContent || cell.innerText;
-
-            // If the search text is found in any cell, mark the row as a match
-            if (cellText.toLowerCase().includes(searchText)) {
-                matchFound = true;
-                break;  // No need to continue checking other cells if a match is found
-            }
-        }
-
-        row.style.display = matchFound ? '' : 'none';
-    }
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
     const menuButton = document.getElementById("menu-button")!;
     const dropdownMenu = document.getElementById("dropdown-menu")!;
@@ -58,36 +35,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     const settingsSection = document.getElementById("settings-section")!;
     const tableBody = document.querySelector("#commands-table tbody")!;
     const editModal = document.getElementById("edit-modal")!;
+    let total_cnt = 0;
 
     let isCreatingNewCommand = false; // The state to sign if the application is creating new shortcut
 
-    const searchBox = document.getElementById('search-box')!;
+    const searchBox = document.getElementById('search-box') as HTMLInputElement;
 
     const contextMenu = document.createElement("div"); // For right click items
 
-    let selectedRows: HTMLTableRowElement[] = [];
+    let selectedRows = new Set<HTMLTableRowElement>();
     let lastClickedRow: HTMLTableRowElement | null = null;
 
     const appWindow = getCurrentWindow();
 
+    const counter = document.getElementById("shortcut-counter") as HTMLSpanElement;
 
+    function updateCounter() {
+      const totalShortcuts = tableBody.children.length;
+      counter.textContent = `${totalShortcuts} / ${total_cnt}`;
+    }
 
     // Fetch shortcuts from Rust via Tauri command
-    async function fetchShortcuts() {
+    async function fetchShortcuts(query: string) {
         const response = await invoke<BlueBirdResponse>('send_command', {
-            cmd: { action: 'get_shortcut_details', args: [] },
+            cmd: { action: 'get_shortcut_details', args: [query] },
         });
         if (response.code !== StateCode.OK) {
-            await message(`Failed to retrieve shortcuts because ${response.results.join("; ")}`, {
-                title: 'Error information', kind: 'error'
-            });
-            return
+            alert(`Failed to retrieve shortcuts because ${response.results.join("; ")}`)
         }
-        let shortcuts: Shortcut[] = [];
-        shortcuts = response.results.map((content) => {
+        const shortcuts = response.results.map((content) => {
             // Parse the JSON string into a Shortcut
             return JSON.parse(content) as Shortcut;
         });
+        if (!query) total_cnt = shortcuts.length;
 
         while (tableBody.firstChild) {
             tableBody.removeChild(tableBody.firstChild);
@@ -100,26 +80,32 @@ document.addEventListener('DOMContentLoaded', async () => {
             row.innerHTML = `<td>${cmd.application}</td><td title="${cmd.comment}">${cmd.description}</td><td>${cmd.shortcut}</td><td>${cmd.hit_number}</td>`;
             tableBody.appendChild(row);
         });
+
+        updateCounter();
     }
 
-    fetchShortcuts();
-
+    // refresh the shortcut list.
+    listen('fetch-again', async () => {
+        await fetchShortcuts("");
+    });
 
     // Check instance to avoid possible error of ts
-    if (searchBox instanceof HTMLInputElement && tableBody instanceof HTMLTableSectionElement) {
+    if (searchBox instanceof HTMLInputElement) {
         // Add event listener for the 'keydown' event to check for Enter key
         searchBox.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault();  // Prevent form submission (if inside a form)
 
                 // Clear selected rows
-                selectedRows.forEach((r) => r.classList.remove("selected"));
-                selectedRows = [];
+                selectedRows.clear();
+                lastClickedRow = null;
 
-                searchTable(searchBox, tableBody);  // Trigger search when Enter is pressed
+                fetchShortcuts(searchBox.value);
             }
         });
     }
+
+    fetchShortcuts("");
 
     // Menu Toggle
     menuButton.addEventListener("click", (event) => {
@@ -165,21 +151,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const rows = Array.from(tableBody.querySelectorAll("tr"));
                 const startIndex = rows.indexOf(lastClickedRow);
                 const endIndex = rows.indexOf(row);
-                selectedRows = rows.slice(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex) + 1);
-                selectedRows.forEach((r) => r.classList.add("selected"));
+                const newSelection = rows.slice(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex) + 1);
+                // Add only new rows that are not already in the set
+                newSelection.forEach((r) => {
+                  if (!selectedRows.has(r)) {
+                    selectedRows.add(r);
+                    r.classList.add("selected");
+                  }
+                });
             } else if (event.ctrlKey) {
                 // Ctrl + Click: Toggle selection
                 row.classList.toggle("selected");
-                if (selectedRows.includes(row)) {
-                    selectedRows = selectedRows.filter((r) => r !== row);
+                if (selectedRows.has(row)) {
+                    selectedRows.delete(row); // Remove if already selected
                 } else {
-                    selectedRows.push(row);
+                    selectedRows.add(row); // Add if not selected
                 }
             } else {
                 // Normal Click: Select only this row
                 selectedRows.forEach((r) => r.classList.remove("selected"));
                 row.classList.add("selected");
-                selectedRows = [row];
+                selectedRows.clear();
+                selectedRows.add(row);
             }
         }
         lastClickedRow = row;
@@ -196,10 +189,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const row = (event.target as HTMLElement).closest("tr")!;
         if (!row) return;
 
-        if (!selectedRows.includes(row)) {
+        if (!selectedRows.has(row)) {
             selectedRows.forEach((r) => r.classList.remove("selected"));
             row.classList.add("selected");
-            selectedRows = [row];
+            selectedRows.clear();
+            selectedRows.add(row);
             lastClickedRow = row;
         }
 
@@ -215,7 +209,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         deleteOption.classList.add("menu-item");
         deleteOption.addEventListener("click", async () => {
             const confirmation = await confirm(
-                `Are you sure you want to delete the selected ${selectedRows.length} shortcuts?`,
+                `Are you sure you want to delete the selected ${selectedRows.size} shortcuts?`,
                 { title: 'Confirm to Delete', kind: 'warning' }
             );
             if (confirmation) {
@@ -239,7 +233,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         importOption.addEventListener("click", () => importFromFileOrDir());
 
         contextMenu.appendChild(createOption);
-        if (selectedRows.length === 1) {
+        if (selectedRows.size === 1) {
             contextMenu.appendChild(editOption);
             deleteOption.textContent = "Delete";
         }
@@ -293,7 +287,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Delete Function
     async function deleteSelectedRows() {
         {
-            let idList: string[] = selectedRows.map(row => row.id);
+            let idList = Array.from(selectedRows).map(row => row.id);
             const response = await invoke<BlueBirdResponse>('send_command', {
                 cmd: { action: 'delete_shortcuts', args: idList },
             });
@@ -305,7 +299,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
         selectedRows.forEach((row) => row.remove());
-        selectedRows = [];
+        selectedRows.clear();
     }
 
     // Export Function
@@ -318,7 +312,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 },
             ],
         });
-        let idList: string[] = selectedRows.map(row => row.id);
+        let idList = Array.from(selectedRows).map(row => row.id);
         const response = await invoke<BlueBirdResponse>('send_command', {
             cmd: { action: 'export_shortcuts', args: [path].concat(idList) },
         });
@@ -351,7 +345,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 title: 'Error information', kind: 'error'
             });
         }
-        fetchShortcuts()
     }
 
     // Edit Save & Cancel Buttons
@@ -416,7 +409,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             lastClickedRow = newRow;
 
             // Add the new row to the selected rows (if needed)
-            selectedRows.push(newRow);
+            selectedRows.add(newRow);
 
             // Scroll to the new row and highlight it
             newRow.scrollIntoView({ behavior: 'smooth', block: 'center' });

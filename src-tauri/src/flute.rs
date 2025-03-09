@@ -111,7 +111,6 @@ impl Flute {
             "persist" => self.command_persist(cmd),
             "info" => self.command_info(cmd),
             "get_shortcut_details" => self.command_get_shortcut_details(cmd),
-            "search_shortcuts" => self.command_search_shortcuts(cmd),
             "new_id" => self.command_new_id(cmd),
             "create_shortcuts" => self.command_create_shortcuts(cmd),
             "update_shortcuts" => self.command_update_shortcuts(cmd),
@@ -208,9 +207,13 @@ impl Flute {
         }
     }
 
-    fn command_get_shortcuts(&self, _cmd: &LizCommand) -> BlueBirdResponse {
+    fn command_get_shortcuts(&self, cmd: &LizCommand) -> BlueBirdResponse {
         let fmt = &self.rhythm.shortcut_print_fmt;
-        let shortcuts = self.music_sheet.retrieve_all();
+        let shortcuts = if cmd.args.is_empty() {
+            self.music_sheet.retrieve_all()
+        } else {
+            self.music_sheet.fuzzy_search(&cmd.args[0])
+        };
         let sc_vec: Vec<String> = shortcuts
             .into_iter()
             .map(|sc| {
@@ -229,35 +232,12 @@ impl Flute {
         }
     }
 
-    fn command_search_shortcuts(&self, cmd: &LizCommand) -> BlueBirdResponse {
-        if cmd.args.is_empty() {
-            return BlueBirdResponse {
-                code: StateCode::BUG,
-                results: vec![format!("Query is missing")]
-            }
-        }
-        let fmt = &self.rhythm.shortcut_print_fmt;
-        let shortcuts = self.music_sheet.fuzzy_search(&cmd.args[0]);
-        let sc_vec: Vec<String> = shortcuts
-            .into_iter()
-            .map(|sc| {
-                // Create a JSON string
-                let json = serde_json::json!({
-                    "id": id_to_string(sc.id),  // Convert id to string
-                    "sc": sc.format_output(fmt)
-                });
-                // Serialize it into a JSON string
-                serde_json::to_string(&json).unwrap() // Use unwrap or handle errors properly
-            })
-            .collect();
-        BlueBirdResponse {
-            code: StateCode::OK,
-            results: sc_vec,
-        }
-    }
-
-    fn command_get_shortcut_details(&self, _cmd: &LizCommand) -> BlueBirdResponse {
-        let shortcuts = self.music_sheet.retrieve_all();
+    fn command_get_shortcut_details(&self, cmd: &LizCommand) -> BlueBirdResponse {
+        let shortcuts = if cmd.args.is_empty() {
+            self.music_sheet.retrieve_all()
+        } else {
+            self.music_sheet.fuzzy_search(&cmd.args[0])
+        };
         let sc_vec: Vec<String> = shortcuts
             .into_iter()
             .map(|sc| sc.to_json_string())

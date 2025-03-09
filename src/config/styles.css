@@ -67,6 +67,7 @@ body {
 /* Commands and Settings Section: Expand to Fit Space */
 #commands-section, 
 #settings-section {
+    gap: 5px;
     flex-grow: 1; /* Expand to fill available space */
     display: flex;
     flex-direction: column;
@@ -124,25 +125,46 @@ body {
     color: var(--list-item-hover-color);
 }
 
+/* Adjust container to align search input and counter properly */
+.search-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 5px 5px;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    background-color: var(--input-bg);
+    box-sizing: border-box; /* Ensure padding and border are included in width */
+}
+
+.search-container:focus-within {
+    border-color: var(--highlight-color);
+}
 
 /* Search Box Styling */
 #search-box {
     width: 100%;
-    margin-bottom: 8px;
-    padding: 15px;
+    padding: 10px;
     font-size: 14px;
-    border: 1px solid var(--input-border);
-    background-color: var(--input-bg);
+    background-color: transparent;
     color: var(--text-color);
-    box-sizing: border-box;
-    border-radius: 8px;
     outline: none;
+    border: none;
     transition: border-color 0.3s ease-in-out;
 }
 
-#search-box:focus {
-border-color: var(--highlight-color);
-}
+
+/* Shortcut counter */
+#shortcut-counter {
+    font-size: 16px;
+    color: var(--text-color);
+    white-space: nowrap;
+    min-width: 80px;
+    text-align: center;
+    background-color: transparent; /* Make counter transparent to match the container */
+    border: none; /* Remove border from counter */
+  }
 
 /* Table Container: Fixed height with scrolling */
 #table-container {

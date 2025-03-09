@@ -1,7 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import Fuse from 'fuse.js';
 
 enum StateCode {
   OK = "OK",
@@ -22,38 +21,22 @@ type Shortcut = {
   sc: string;
 }
 
-let fuse: Fuse<Shortcut> | null = null;
-
-// Initialize or Update Fuse
-function updateFuse(shortcuts: Shortcut[]) {
-  const fuseOptions = {
-    keys: ['sc'], // Search within 'content'
-    threshold: 0.4,    // Allow partial matches (lower is stricter)
-    ignoreLocation: true, // Ignore match position for substring search
-    includeMatches: true, // Include matched indices for highlighting
-    useExtendedSearch: true, // Enable advanced search patterns
-    minMatchCharLength: 2,   // Match single characters if needed
-  };
-  fuse = new Fuse(shortcuts, fuseOptions);
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
 
-  let shortcuts: Shortcut[] = [];
+  // let shortcuts: Shortcut[] = [];
   let shortcut_task: string = '';
   let selectedIndex = 0;
+  let total_cnt = 0;
 
   const appWindow = getCurrentWindow();
 
   const shortcutListContainer = document.getElementById('shortcut-list') as HTMLUListElement;
-  const searchResultsContainer = document.getElementById('search-results') as HTMLUListElement;
   const searchBar = document.getElementById('search') as HTMLInputElement;
   const counter = document.getElementById("shortcut-counter") as HTMLSpanElement;
 
   function updateCounter() {
     const totalShortcuts = shortcutListContainer.children.length;
-    const filteredShortcuts = searchResultsContainer.style.display === "none" ? totalShortcuts : searchResultsContainer.children.length;
-    counter.textContent = `${filteredShortcuts} / ${totalShortcuts}`;
+    counter.textContent = `${totalShortcuts} / ${total_cnt}`;
   }
 
   // Set the searchbar to be active in the beginning
@@ -62,37 +45,25 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // Fetch shortcuts from Rust via Tauri command
-  async function fetchShortcuts() {
-    const response = await invoke<BlueBirdResponse>('send_command', {
-      cmd: { action: 'get_shortcuts', args: [] },
+  async function fetchShortcuts(query: string) {
+    const response: BlueBirdResponse = await invoke<BlueBirdResponse>('send_command', {
+      cmd: { action: 'get_shortcuts', args: [query] },
     });
     if (response.code !== StateCode.OK) {
       alert(`Failed to retrieve shortcuts because ${response.results.join("; ")}`)
     }
-    shortcuts = response.results.map((content) => {
+    const shortcuts = response.results.map((content) => {
       // Parse the JSON string into a Shortcut
       return JSON.parse(content) as Shortcut;
     });
-    updateFuse(shortcuts);
+    if (!query) total_cnt = shortcuts.length;
     renderList(shortcuts, shortcutListContainer);
   }
 
   // refresh the shortcut list.
-  listen('fetch-again', () => {
-    fetchShortcuts();
+  listen('fetch-again', async () => {
+    await fetchShortcuts("");
   });
-
-  async function resetView() {
-    if (searchBar) {
-      searchBar.value = ''; // Clear search input
-      while (searchResultsContainer.firstChild) {
-        searchResultsContainer.removeChild(searchResultsContainer.firstChild);
-      }  // Clear previous search resulsts list
-    }
-    shortcutListContainer.style.display = 'block';
-    shortcutListContainer.scrollTop = 0;
-    updateCounter();
-  }
 
   // Render the list of shortcuts
   function renderList(list: Shortcut[], listContainer: HTMLUListElement) {
@@ -132,13 +103,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   addClickListener(shortcutListContainer);
-  addClickListener(searchResultsContainer);
-
-  // Perform Fuzzy Search
-  function fuzzySearch(query: string): Shortcut[] {
-    if (!query.trim() || !fuse) return shortcuts;
-    return fuse.search(query).map(result => result.item);
-  }
 
   // Handle search input events
   const searchInput = document.getElementById('search') as HTMLInputElement;
@@ -153,23 +117,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // Handle search input with debounce
-  const debouncedSearch = debounce(() => {
+  const debouncedSearch = debounce(async () => {
     const query = searchInput.value;
-    if (query) {
-      // If search query exists, hide the shortcut list and show search results
-      shortcutListContainer.style.display = 'none';
-      searchResultsContainer.style.display = 'block';
-
-      // Perform the fuzzy search and render the search results
-      const filtered = fuzzySearch(query);  // Assuming fuzzySearch is implemented
-      renderList(filtered, searchResultsContainer);
-    } else {
-      // If no search query, hide search results and show the full list
-      if (shortcutListContainer.style.display === 'none') {
-        resetView()
-        updateSelection(shortcutListContainer, 0);
-      }
-    }
+    await fetchShortcuts(query);
   }, 300);
 
   searchInput.addEventListener('input', debouncedSearch);
@@ -180,13 +130,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       behavior: 'smooth',
       block: 'nearest',
     });
-  }
-
-  // Helper function to update selection styling
-  function updateSelection(ul: HTMLUListElement, newIndex: number) {
-    const items = ul.getElementsByTagName('li');
-
-    _updateSelection(items, newIndex);
   }
 
   function _updateSelection(
@@ -202,16 +145,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     scrollSelectedItemIntoView(items, newIndex);
   }
 
-  // Helper function to get active list container
-  function getActiveListContainer(): HTMLUListElement {
-    return shortcutListContainer.style.display === 'none'
-      ? searchResultsContainer
-      : shortcutListContainer;
-  }
-
   // Keyboard navigation (up/down, esc and enter)
   document.addEventListener('keydown', (e) => {
-    const ul = getActiveListContainer();
+    const ul = shortcutListContainer;
     const items = ul.getElementsByTagName('li');
 
     switch (e.key) {
@@ -242,8 +178,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       case 'Escape':
         appWindow.hide(); // Hide the window
-        resetView();
-        _updateSelection(items, 0);
         break;
     }
   });
@@ -299,5 +233,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // Initialize by fetching shortcuts
-  fetchShortcuts();
+  fetchShortcuts("");
 });

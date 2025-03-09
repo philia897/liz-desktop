@@ -165,13 +165,17 @@ impl MusicSheetDB {
 
     // Fuzzy search that allows partial matches, even with no spaces or flexible query patterns
     pub fn fuzzy_search(&self, query: &str) -> Vec<&Shortcut> {
-        let mut results = Vec::new();
-        let binding = query.to_lowercase();
-        let query_parts = binding.split_whitespace().collect::<Vec<_>>();
+        if query.is_empty() {
+            println!("Retrieve_all");
+            return self.retrieve_all();
+        }
+        let mut results: Vec<&Shortcut> = Vec::new();
+        let binding: String = query.to_lowercase();
+        let query_parts: Vec<&str> = binding.split_whitespace().collect::<Vec<_>>();
 
         // Normalize the query (remove spaces) and loop over the data to find matches
         for shortcut in &self.t.data {
-            let normalized_description = format!("{}{}{}", shortcut.application, shortcut.description.to_lowercase().replace(" ", ""), shortcut.shortcut);
+            let normalized_description = format!("{}{}{}", shortcut.application, shortcut.description, shortcut.shortcut).to_lowercase().replace(" ", "");
 
             // Check if all query parts match the normalized description
             if query_parts.iter().all(|part| normalized_description.contains(part)) {
