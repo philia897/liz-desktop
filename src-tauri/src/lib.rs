@@ -45,21 +45,6 @@ fn send_command(cmd: LizCommand, app: AppHandle) -> BlueBirdResponse {
 }
 
 
-// Now right-click, emit one signal and let frontend to revoke this command to create the config panel
-// Refer to this https://docs.rs/tauri/latest/tauri/webview/struct.WebviewWindowBuilder.html
-// TODO: Find a better way to handle this.
-#[tauri::command]
-async fn create_window(app: tauri::AppHandle) {
-    let path = std::path::PathBuf::from("config.html");
-    let _webview_window = tauri::webview::WebviewWindowBuilder::new(&app, "config", tauri::WebviewUrl::App(path))
-                    .decorations(false)
-                    .transparent(true)
-                    .center()
-                    .inner_size(800.0, 600.0)
-                    .min_inner_size(500.0, 200.0)
-                    .build().unwrap();
-}
-
 fn cleanup(app: &AppHandle) {
     match app.state::<Mutex<Flute>>().lock() {
         Ok(mut flute) => {
@@ -127,7 +112,7 @@ pub fn run() {
             }
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![send_command, create_window])
+        .invoke_handler(tauri::generate_handler![send_command])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
         .run(|app_handle, e| match e {

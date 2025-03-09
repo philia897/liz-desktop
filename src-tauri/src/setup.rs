@@ -47,28 +47,36 @@ fn handle_menu_events(app: &AppHandle, event: &MenuEvent) {
         }
         "config" => {
             println!("config menu item was clicked");
-            let _ = app.emit("create-config", "");
-            // let path = PathBuf::from("config.html");
-            // println!("{:?}", path);
-            // if let Err(e) =
-            //     tauri::WebviewWindowBuilder::new(app, "config", tauri::WebviewUrl::App(path))
-            //         .decorations(false)
-            //         .transparent(true)
-            //         .center()
-            //         .inner_size(800.0, 600.0)
-            //         .min_inner_size(500.0, 200.0)
-            //         .build()
-            // {
-            //     let view = app.get_webview_window("config");
-            //     if view.is_none() {
-            //         println!(
-            //             "handle_menu_events: Failed to create Config Panel window: {}",
-            //             e
-            //         );
-            //     } else {
-            //         let _ = view.unwrap().show();
-            //     }
-            // }
+            let app_handle: AppHandle = app.clone();
+            tauri::async_runtime::spawn(async move {
+                let path = std::path::PathBuf::from("config.html");
+                if let Err(e) = tauri::webview::WebviewWindowBuilder::new(
+                    &app_handle,
+                    "config",
+                    tauri::WebviewUrl::App(path),
+                )
+                .decorations(false)
+                .transparent(true)
+                .center()
+                .inner_size(800.0, 600.0)
+                .min_inner_size(500.0, 200.0)
+                .build()
+                {
+                    if let Some(win) = app_handle.get_webview_window("config") {
+                        if let Err(e2) = win.show() {
+                            println!("Failed to show the app, err: {}", e2);
+                        }
+                        if let Err(e2) = win.set_focus() {
+                            println!("Failed to focus the app, err: {}", e2);
+                        }
+                    } else {
+                        println!(
+                            "handle_menu_events: Failed to create Config Panel window: {}",
+                            e
+                        );
+                    }
+                }
+            });
         }
         "persist" => {
             println!("Persist data into music_sheet.lock");

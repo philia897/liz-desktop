@@ -74,10 +74,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     fetchShortcuts();
   });
 
-  listen('create-config', () => {
-    invoke('create_window', {})
-  })
-
   async function resetView() {
     if (searchBar) {
       searchBar.value = ''; // Clear search input
