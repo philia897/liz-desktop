@@ -1,6 +1,6 @@
 [package]
 name = "liz"
-version = "0.1.1"
+version = "0.2.0"
 description = "Liz: A cross-platform shortcut helper and auto-executor"
 authors = ["philia897"]
 edition = "2021"
