@@ -221,9 +221,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         deleteOption.classList.add("menu-item");
         deleteOption.addEventListener("click", async () => {
             const translations = await getTranslations(["confirm_delete_message", "confirm_delete_title"]);
+            const confirm_delete_msg = translations.confirm_delete_message || "Are you sure you want to delete the selected {count} shortcuts?";
             const confirmation = await confirm(
-                translations.confirm_delete_message.replace("{count}", selectedRows.size.toString()), 
-                { title: translations.confirm_delete_title, kind: "warning" }
+                confirm_delete_msg.replace("{count}", selectedRows.size.toString()), 
+                { title: translations.confirm_delete_title || "Confirm to Delete", kind: "warning" }
             );
             if (confirmation) {
                 await deleteSelectedRows();

@@ -133,8 +133,8 @@ export async function initialize_settings() {
     saveButton.addEventListener('click', async () => {
         const translations = await getTranslations(["confirm_overwrite_settings", "confirm_overwrite_settings_title"]);
         const confirmation = await confirm(
-            translations.confirm_overwrite_settings, 
-            { title: translations.confirm_overwrite_settings_title, kind: "warning" }
+            translations.confirm_overwrite_settings || "Are you sure you want to overwrite the settings?", 
+            { title: translations.confirm_overwrite_settings_title || "Confirm to Overwrite Settings", kind: "warning" }
         );
         if (confirmation) {
             const settingsJson = getSettingsJson();
@@ -148,9 +148,10 @@ export async function initialize_settings() {
                 return
             } else {
                 const translations = await getTranslations(["ask_to_restart", "ask_to_restart_title"]);
-                const confirmation = await confirm(translations.ask_to_restart, {
-                    title: translations.ask_to_restart_title, kind: 'warning'
-                })
+                const confirmation = await confirm(
+                    translations.ask_to_restart || "Update successfully. Some settings require restarting Liz to take effect. Restart Now?", 
+                    { title: translations.ask_to_restart_title || "Restart Now?", kind: 'warning'}
+                )
                 if (confirmation) {
                     await relaunch();
                 }
