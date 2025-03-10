@@ -10,28 +10,28 @@
     <div id="app">
         <div data-tauri-drag-region class="topbar">
             <button id="menu-button">☰</button>
-            <span class="title">Liz Configuration</span>
+            <span class="title" data-i18n="config_panel_title">Liz Configuration</span>
             <span id="close-button">✖</span>
             <div id="dropdown-menu" class="hidden">
-                <div class="menu-item dropdown-menu-item" data-option="commands">Commands</div>
-                <div class="menu-item dropdown-menu-item" data-option="settings">Settings</div>
+                <div class="menu-item dropdown-menu-item" data-option="commands" data-i18n="config_menu_commands">Commands</div>
+                <div class="menu-item dropdown-menu-item" data-option="settings" data-i18n="config_menu_settings">Settings</div>
             </div>
         </div>
         
         <div id="main-content">
             <div id="commands-section">
                 <div class="search-container">
-                    <input type="text" id="search-box" placeholder="Search shortcuts..." />
+                    <input type="text" id="search-box" data-i18n-placeholder="search_placeholder" placeholder="Search shortcuts..." />
                     <span id="shortcut-counter">0 / 0</span>
                 </div>
                 <div id="table-container">
                     <table id="commands-table">
                         <thead>
                             <tr>
-                                <th>App</th>
-                                <th>Description</th>
-                                <th>Command</th>
-                                <th>Hit</th>
+                                <th data-i18n="table_column_app">App</th>
+                                <th data-i18n="table_column_desc">Description</th>
+                                <th data-i18n="table_column_cmd">Command</th>
+                                <th data-i18n="table_column_hit">Hit</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -41,11 +41,11 @@
                 </div>
             </div>
             <div id="edit-modal" class="hidden edit-panel">
-                    <label>App Name:    <input type="text" id="edit-app"></label>
-                    <label>Description: <input type="text" id="edit-desc"></label>
-                    <label>Command:     <input type="text" id="edit-command"></label>
-                    <label>Comment:     <textarea id="edit-comment" rows="4"></textarea></label>
-                    <label>Hit Number:  <input type="number" id="edit-hit"></label>
+                    <label data-i18n="edit_app_label">App Name:    </label><input type="text" id="edit-app">
+                    <label data-i18n="edit_desc_label">Description: </label><input type="text" id="edit-desc">
+                    <label data-i18n="edit_command_label">Command:     </label><input type="text" id="edit-command">
+                    <label data-i18n="edit_comment_label">Comment:     </label><textarea id="edit-comment" rows="4"></textarea>
+                    <label data-i18n="edit_hit_label">Hit Number:  </label><input type="number" id="edit-hit">
                     <div id="save-cancel" class="save-cancel-container">
                         <button id="save-edit" class="save-button">Save</button>
                         <button id="cancel-edit" class="cancel-button">Cancel</button>
@@ -56,8 +56,8 @@
                     <!-- Rhythm setting items -->
                 </div>
                 <div id="save-reset" class="save-cancel-container">
-                    <button id="save-rhytm" class="save-button">Save</button>
-                    <button id="reset-rhytm" class="cancel-button">Reset</button>
+                    <button id="save-rhytm" class="save-button" data-i18n="save_button">Save</button>
+                    <button id="reset-rhytm" class="cancel-button" data-i18n="reset_button">Reset</button>
                 </div>
             </div>
         </div>

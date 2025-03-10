@@ -1,4 +1,4 @@
-use std::{process::exit, sync::Mutex};
+use std::{collections::HashMap, process::exit, sync::Mutex};
 
 use clap::Parser;
 use setup::create_flute;
@@ -9,6 +9,7 @@ mod flute;
 mod setup;
 mod tools;
 use flute::{BlueBirdResponse, Flute, LizCommand, StateCode};
+use tools::trans::TranslationCache;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -44,6 +45,28 @@ fn send_command(cmd: LizCommand, app: AppHandle) -> BlueBirdResponse {
     }
 }
 
+/// Get a single translation
+#[tauri::command]
+fn get_translation(key: &str, state: tauri::State<Mutex<TranslationCache> >) -> String {
+    let cache = state.lock().unwrap();
+    cache.data.get(key).cloned().unwrap_or("".to_string())
+}
+
+/// Get multiple translations at once
+#[tauri::command]
+fn get_translations(keys: Vec<String>, state: tauri::State<Mutex<TranslationCache> >) -> HashMap<String, String> {
+    let cache = state.lock().unwrap();
+    let mut results = HashMap::new();
+
+    for key in keys {
+        if let Some(value) = cache.data.get(&key).and_then(|v| Some(v.clone())) {
+            results.insert(key, value);
+        } else {
+            results.insert(key, "".to_string());
+        }
+    }
+    results
+}
 
 fn cleanup(app: &AppHandle) {
     match app.state::<Mutex<Flute>>().lock() {
@@ -93,6 +116,7 @@ pub fn run() {
             match create_flute(args.config) {
                 Ok(flute) => {
                     trigger_shortcut = flute.rhythm.trigger_shortcut.clone();
+                    let _ = app.manage(Mutex::new(TranslationCache::load(&flute.rhythm.language)));
                     let _ = app.manage(Mutex::new(flute));
                 }
                 Err(e) => {
@@ -112,7 +136,7 @@ pub fn run() {
             }
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![send_command])
+        .invoke_handler(tauri::generate_handler![send_command, get_translation, get_translations])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
         .run(|app_handle, e| match e {

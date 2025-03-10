@@ -16,6 +16,7 @@ pub struct Rhythm {
     pub interval_ms: u64,         // interval of each shortcut block. No need to set it normally.
     pub trigger_shortcut: String, // The shortcut to activate Liz
     pub shortcut_print_fmt: String, // The format to show one shortcut
+    pub language: String,    // The Application Language
 }
 
 impl Default for Rhythm {
@@ -40,6 +41,7 @@ impl Default for Rhythm {
             interval_ms: 100,
             trigger_shortcut,
             shortcut_print_fmt,
+            language: format!("en"),
         }
     }
 }
@@ -58,7 +60,8 @@ pub fn parse_rhythm(json_str: &str) -> Result<Rhythm, Box<dyn std::error::Error>
 impl Rhythm {
     pub fn to_string_list(&self) -> Vec<String> {
         vec![
-            json!({"name": "liz_path", "value": self.liz_path, "hint": "The config path from"}).to_string(),
+            json!({"name": "language", "value": self.language, "hint": "The Application Language (Support zh, en)"}).to_string(),
+            json!({"name": "liz_path", "value": self.liz_path, "hint": "The path of data dir"}).to_string(),
             // json!({"name": "user_sheets_path", "value": self.user_sheets_path, "hint": "Path for all the shortcut sheets"}).to_string(),
             json!({"name": "music_sheet_path", "value": self.music_sheet_path, "hint": "Path for the lock file for Bluebird"}).to_string(),
             json!({"name": "keymap_path", "value": self.keymap_path, "hint": "Can be used to customize key mapping"}).to_string(),

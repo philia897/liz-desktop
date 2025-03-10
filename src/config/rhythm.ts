@@ -1,6 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import { confirm, message } from '@tauri-apps/plugin-dialog'
 import { relaunch } from '@tauri-apps/plugin-process';
+import { getTranslations } from '../i18n';
 
 enum StateCode {
     OK = "OK",
@@ -26,12 +27,15 @@ function formatString(input: string): string {
         .join(' '); // Join with spaces
 }
 
-function createSettingItem(setting: RhythmSetting): HTMLLabelElement {
+async function createSettingItem(setting: RhythmSetting): Promise<HTMLLabelElement> {
+    const name_key = `rhythm.${setting.name}`;
+    const hint_key = `rhythm.${setting.name}.hint`;
+    const translations = await getTranslations([name_key, hint_key]);
 
     // Create the label element
     const label = document.createElement('label');
     label.id = setting.name
-    label.innerHTML = formatString(setting.name); // Set the label text
+    label.innerHTML = translations[name_key] || formatString(setting.name); // Set the label text
     label.style.overflow = 'visible';
     label.classList.add("rhythm-setting");
 
@@ -40,7 +44,7 @@ function createSettingItem(setting: RhythmSetting): HTMLLabelElement {
     input.type = "text"; // Set the input type to text
     input.id = `input-${setting.name}`; // Generate a dynamic ID based on the name
     input.value = setting.value; // Set the input value
-    label.title = setting.hint; // Set the hover hint using the title attribute
+    label.title = translations[hint_key] || setting.hint; // Set the hover hint using the title attribute
 
     label.appendChild(input);
 
@@ -93,16 +97,17 @@ export async function initialize_settings() {
     } // Clear previous list
 
     // Populate Table
-    settings.forEach(setting => {
-        const row = createSettingItem(setting)
+    settings.forEach(async setting => {
+        const row = await createSettingItem(setting)
         settingsContainer.appendChild(row);
     });
 
     // Add an event listener for the Save button
     saveButton.addEventListener('click', async () => {
+        const translations = await getTranslations(["confirm_overwrite_settings", "confirm_overwrite_settings_title"]);
         const confirmation = await confirm(
-            `Are you sure you want to overwrite the settings?`,
-            { title: 'Confirm to Overwrite Settings', kind: 'warning' }
+            translations.confirm_overwrite_settings, 
+            { title: translations.confirm_overwrite_settings_title, kind: "warning" }
         );
         if (confirmation) {
             const settingsJson = getSettingsJson();
@@ -115,8 +120,9 @@ export async function initialize_settings() {
                 });
                 return
             } else {
-                const confirmation = await confirm(`Update successfully.Some settings require restarting Liz to take effect. Restart Now?`, {
-                    title: 'Restart Now?', kind: 'warning'
+                const translations = await getTranslations(["ask_to_restart", "ask_to_restart_title"]);
+                const confirmation = await confirm(translations.ask_to_restart, {
+                    title: translations.ask_to_restart_title, kind: 'warning'
                 })
                 if (confirmation) {
                     await relaunch();
@@ -131,8 +137,8 @@ export async function initialize_settings() {
         while (settingsContainer.firstChild) {
             settingsContainer.removeChild(settingsContainer.firstChild);
         } // Clear previous list
-        settings.forEach(setting => {
-            const row = createSettingItem(setting)
+        settings.forEach(async setting => {
+            const row = await createSettingItem(setting)
             settingsContainer.appendChild(row);
         });
     });

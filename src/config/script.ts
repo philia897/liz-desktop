@@ -3,6 +3,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { confirm, message, open, save } from '@tauri-apps/plugin-dialog'
 import { initialize_settings } from "./rhythm";
+import { loadLanguage, getTranslations } from "../i18n"
 
 const file_extensions = ['json', 'txt'];
 
@@ -36,6 +37,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const tableBody = document.querySelector("#commands-table tbody")!;
     const editModal = document.getElementById("edit-modal")!;
     let total_cnt = 0;
+
+    loadLanguage()
 
     let isCreatingNewCommand = false; // The state to sign if the application is creating new shortcut
 
@@ -183,7 +186,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     contextMenu.classList.add("context-menu", "hidden");
     document.body.appendChild(contextMenu);
 
-    commandsSection.addEventListener("contextmenu", (event) => {
+    commandsSection.addEventListener("contextmenu", async (event) => {
         event.preventDefault();
 
         const row = (event.target as HTMLElement).closest("tr")!;
@@ -197,20 +200,30 @@ document.addEventListener('DOMContentLoaded', async () => {
             lastClickedRow = row;
         }
 
+        const translations = await getTranslations([
+            "table_context_menu.delete_selected",
+            "table_context_menu.delete",
+            "table_context_menu.edit",
+            "table_context_menu.new_item",
+            "table_context_menu.export_selected",
+            "table_context_menu.import_local"
+        ])
+
         // Build context menu
         contextMenu.innerHTML = "";
         const editOption = document.createElement("div");
         editOption.classList.add("menu-item");
-        editOption.textContent = "Edit";
+        editOption.textContent = translations["table_context_menu.edit"] || "Edit";
         editOption.addEventListener("click", () => openEditModal(lastClickedRow));
 
         const deleteOption = document.createElement("div");
-        deleteOption.textContent = "Delete Selected";
+        deleteOption.textContent = translations["table_context_menu.delete_selected"] || "Delete Selected";
         deleteOption.classList.add("menu-item");
         deleteOption.addEventListener("click", async () => {
+            const translations = await getTranslations(["confirm_delete_message", "confirm_delete_title"]);
             const confirmation = await confirm(
-                `Are you sure you want to delete the selected ${selectedRows.size} shortcuts?`,
-                { title: 'Confirm to Delete', kind: 'warning' }
+                translations.confirm_delete_message.replace("{count}", selectedRows.size.toString()), 
+                { title: translations.confirm_delete_title, kind: "warning" }
             );
             if (confirmation) {
                 await deleteSelectedRows();
@@ -218,24 +231,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         const createOption = document.createElement("div");
-        createOption.textContent = "New Item";
+        createOption.textContent = translations["table_context_menu.new_item"] || "New Item";
         createOption.classList.add("menu-item");
         createOption.addEventListener("click", () => createNewCommand());
 
         const exportOption = document.createElement("div");
-        exportOption.textContent = "Export Selected";
+        exportOption.textContent = translations["table_context_menu.export_selected"] || "Export Selected";
         exportOption.classList.add("menu-item");
         exportOption.addEventListener("click", () => exportSelectedRows());
 
         const importOption = document.createElement("div");
-        importOption.textContent = "Import Local";
+        importOption.textContent = translations["table_context_menu.import_local"] || "Import Local";
         importOption.classList.add("menu-item");
         importOption.addEventListener("click", () => importFromFileOrDir());
 
         contextMenu.appendChild(createOption);
         if (selectedRows.size === 1) {
             contextMenu.appendChild(editOption);
-            deleteOption.textContent = "Delete";
+            deleteOption.textContent = translations["table_context_menu.delete"] || "Delete";
         }
         contextMenu.appendChild(deleteOption);
         contextMenu.appendChild(exportOption);
