@@ -41,6 +41,14 @@ fn send_command(cmd: LizCommand, app: AppHandle) -> BlueBirdResponse {
             let _ = app.emit("fetch-again", "");
             resp
         }
+        "update_rhythm" => {
+            let resp: BlueBirdResponse = execute_cmd(cmd, &app);
+            let cache = app.state::<Mutex<TranslationCache>>();
+            let flute = app.state::<Mutex<Flute>>();
+            let flute = flute.lock().unwrap();
+            cache.lock().as_mut().unwrap().reload(&flute.rhythm.language);
+            resp
+        }
         _ => execute_cmd(cmd, &app),
     }
 }

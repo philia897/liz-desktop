@@ -337,6 +337,18 @@ body {
     border-color: var(--highlight-color);
 }
 
+
+.edit-panel select {
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    margin-top: 4px;
+    padding: 6px 10px;
+    background: var(--input-bg);
+    color: var(--text-color);
+    font-size: 14px;
+    appearance: none;  /* Removes default styles in some browsers */
+}
+
 .edit-panel textarea {
     margin-top: 4px;
     padding: 6px 10px;

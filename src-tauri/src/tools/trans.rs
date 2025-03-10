@@ -10,6 +10,11 @@ impl TranslationCache {
     pub fn load(lang: &str) -> Self {
         Self { data: load_translations(lang) }
     }
+
+    pub fn reload(&mut self, lang: &str) {
+        let data = load_translations(lang);
+        self.data.extend(data);
+    }
 }
 
 /// Load translations, starting with English as the base, then overwriting with the given language.

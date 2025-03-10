@@ -39,14 +39,41 @@ async function createSettingItem(setting: RhythmSetting): Promise<HTMLLabelEleme
     label.style.overflow = 'visible';
     label.classList.add("rhythm-setting");
 
-    // Create the input element
-    const input = document.createElement('input');
-    input.type = "text"; // Set the input type to text
-    input.id = `input-${setting.name}`; // Generate a dynamic ID based on the name
-    input.value = setting.value; // Set the input value
+    let inputElement: HTMLInputElement | HTMLSelectElement;
+    if (setting.name === "language") {
+        // Create a select dropdown for language
+        const select = document.createElement('select');
+        select.id = `input-${setting.name}`;
+
+        // Define supported languages
+        const languages = [
+            { code: "en", label: "English" },
+            { code: "zh", label: "中文" }
+        ];
+
+        // Populate the select options
+        languages.forEach(lang => {
+            const option = document.createElement('option');
+            option.value = lang.code;
+            option.textContent = lang.label;
+            if (setting.value === lang.code) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+
+        inputElement = select;
+    } else {
+        // Create the input element for other settings
+        const input = document.createElement('input');
+        input.type = "text"; // Set the input type to text
+        input.id = `input-${setting.name}`; // Generate a dynamic ID based on the name
+        input.value = setting.value; // Set the input value
+        inputElement = input;
+    }
     label.title = translations[hint_key] || setting.hint; // Set the hover hint using the title attribute
 
-    label.appendChild(input);
+    label.appendChild(inputElement);
 
     return label;
 }
@@ -58,7 +85,7 @@ function getSettingsJson(): Record<string, string | number> {
     const labels = document.querySelectorAll<HTMLLabelElement>(".rhythm-setting");
 
     labels.forEach(label => {
-        const input = label.querySelector("input"); // Find input inside label
+        const input = label.querySelector("input") || label.querySelector("select"); // Find input inside label
         if (input) {
             const value = input.value.trim(); // Get and trim the value
             if (value) {
