@@ -43,5 +43,11 @@
     "confirm_overwrite_settings": "您确定要覆盖设置吗？",
     "confirm_overwrite_settings_title": "确认覆盖设置",
     "ask_to_restart": "更新成功。部分设置需要重启 Liz 才能生效。立即重启吗？",
-    "ask_to_restart_title": "立即重启？"
+    "ask_to_restart_title": "立即重启？",
+
+    "tray_menu_show": "呼出",
+    "tray_menu_config": "配置",
+    "tray_menu_persist": "保存",
+    "tray_menu_reload": "重载",
+    "tray_menu_quit": "退出"
 }

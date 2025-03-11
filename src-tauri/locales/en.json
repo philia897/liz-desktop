@@ -43,5 +43,11 @@
     "confirm_overwrite_settings": "Are you sure you want to overwrite the settings?",
     "confirm_overwrite_settings_title": "Confirm to Overwrite Settings",
     "ask_to_restart": "Update successfully. Some settings require restarting Liz to take effect. Restart Now?",
-    "ask_to_restart_title": "Restart Now?"
+    "ask_to_restart_title": "Restart Now?",
+
+    "tray_menu_show": "Show",
+    "tray_menu_config": "Config",
+    "tray_menu_persist": "Save",
+    "tray_menu_reload": "Reload",
+    "tray_menu_quit": "Quit"
 }

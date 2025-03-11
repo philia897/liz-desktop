@@ -6,18 +6,24 @@ use tauri::{
 
 use crate::{
     flute::Flute,
-    tools::{db::MusicSheetDB, rhythm::Rhythm},
+    tools::{db::MusicSheetDB, rhythm::Rhythm, trans::TranslationCache},
 };
 use std::io;
 use std::{fs::DirBuilder, path::PathBuf, sync::Mutex};
 
 /// Setup the tray, including its configuration and Menu.
-pub fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
-    let show_i = MenuItem::with_id(app, "show", "Show", true, None::<&str>)?;
-    let config_i = MenuItem::with_id(app, "config", "Config", true, None::<&str>)?;
-    let persist_i = MenuItem::with_id(app, "persist", "Save", true, None::<&str>)?;
-    let reload_i = MenuItem::with_id(app, "reload", "Reload", true, None::<&str>)?;
-    let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
+pub fn setup_tray(app: &tauri::App, transcache: &TranslationCache) -> Result<(), Box<dyn std::error::Error>> {
+    let show_label = transcache.data.get("tray_menu_show").cloned().unwrap_or("Show".to_string());
+    let config_label = transcache.data.get("tray_menu_config").cloned().unwrap_or("Config".to_string());
+    let persist_label = transcache.data.get("tray_menu_persist").cloned().unwrap_or("Save".to_string());
+    let reload_label = transcache.data.get("tray_menu_reload").cloned().unwrap_or("Reload".to_string());
+    let quit_label = transcache.data.get("tray_menu_quit").cloned().unwrap_or("Quit".to_string());
+    
+    let show_i = MenuItem::with_id(app, "show", show_label, true, None::<&str>)?;
+    let config_i = MenuItem::with_id(app, "config", config_label, true, None::<&str>)?;
+    let persist_i = MenuItem::with_id(app, "persist", persist_label, true, None::<&str>)?;
+    let reload_i = MenuItem::with_id(app, "reload", reload_label, true, None::<&str>)?;
+    let quit_i = MenuItem::with_id(app, "quit", quit_label, true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&show_i, &config_i, &persist_i, &reload_i, &quit_i])?;
 
     // Create and build the tray icon

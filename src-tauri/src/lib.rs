@@ -69,7 +69,7 @@ fn get_translations(keys: Vec<String>, state: tauri::State<Mutex<TranslationCach
     let mut results = HashMap::new();
 
     for key in keys {
-        if let Some(value) = cache.data.get(&key).and_then(|v| Some(v.clone())) {
+        if let Some(value) = cache.data.get(&key).cloned() {
             results.insert(key, value);
         } else {
             results.insert(key, "".to_string());
@@ -127,7 +127,9 @@ pub fn run() {
                 Ok(flute) => {
                     trigger_shortcut = flute.rhythm.trigger_shortcut.clone();
                     let resource_path = app.path().resource_dir()?;
-                    let _ = app.manage(Mutex::new(TranslationCache::load(&flute.rhythm.language, &resource_path)));
+                    let cache: TranslationCache = TranslationCache::load(&flute.rhythm.language, &resource_path);
+                    let _ = setup::setup_tray(app, &cache);
+                    let _ = app.manage(Mutex::new(cache));
                     let _ = app.manage(Mutex::new(flute));
                 }
                 Err(e) => {
@@ -135,7 +137,6 @@ pub fn run() {
                     exit(1);
                 }
             }
-            let _ = setup::setup_tray(app);
             if let Err(e) = setup::register_trigger_shortcut(app, trigger_shortcut.as_str()) {
                 eprintln!("Failed to register trigger shortcut: {}", e);
                 app.dialog()
