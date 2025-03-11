@@ -46,7 +46,9 @@ fn send_command(cmd: LizCommand, app: AppHandle) -> BlueBirdResponse {
             let cache = app.state::<Mutex<TranslationCache>>();
             let flute = app.state::<Mutex<Flute>>();
             let flute = flute.lock().unwrap();
-            cache.lock().as_mut().unwrap().reload(&flute.rhythm.language);
+            if let Ok(resource_path) = app.path().resource_dir() {
+                cache.lock().as_mut().unwrap().reload(&flute.rhythm.language, &resource_path);
+            }
             resp
         }
         _ => execute_cmd(cmd, &app),
@@ -124,7 +126,8 @@ pub fn run() {
             match create_flute(args.config) {
                 Ok(flute) => {
                     trigger_shortcut = flute.rhythm.trigger_shortcut.clone();
-                    let _ = app.manage(Mutex::new(TranslationCache::load(&flute.rhythm.language)));
+                    let resource_path = app.path().resource_dir()?;
+                    let _ = app.manage(Mutex::new(TranslationCache::load(&flute.rhythm.language, &resource_path)));
                     let _ = app.manage(Mutex::new(flute));
                 }
                 Err(e) => {
