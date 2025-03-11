@@ -5,6 +5,8 @@
 
 # liz-desktop
 
+[English](./README.md) [中文](./README_zh.md) 
+
 A Rust-based shortcut helper to remember, customize and autorun shortcuts or commands. Developed via Tauri 2.0.
 
 - Windows ☑️
